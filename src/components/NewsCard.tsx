@@ -22,7 +22,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
 
   return (
     <div 
-      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer"
+      className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer"
       onClick={() => onClick(article)}
     >
       <div className="aspect-video bg-gray-200 relative overflow-hidden">
@@ -31,7 +31,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
           alt={article.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-4 right-4">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -48,18 +48,18 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
         </div>
       </div>
       
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 text-lg leading-snug mb-2 line-clamp-2">
+      <div className="p-6">
+        <h3 className="font-bold text-gray-900 text-xl leading-snug mb-3 line-clamp-2">
           {article.title}
         </h3>
         
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className="text-gray-600 text-base mb-4 line-clamp-2 leading-relaxed">
           {article.summary}
         </p>
         
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
           <div className="flex items-center">
-            <MapPin size={12} className="mr-1" />
+            <MapPin size={14} className="mr-1.5" />
             <span>{article.location}</span>
           </div>
           
@@ -70,9 +70,19 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
           </div>
         </div>
         
-        <div className="mt-2 pt-2 border-t border-gray-100">
-          <span className="text-xs text-gray-500">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <span className="text-sm text-gray-500">
             Door {article.author}
+          </span>
+          
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+            article.category === 'belangrijk' 
+              ? 'bg-red-100 text-red-700'
+              : article.category === 'regionaal'
+              ? 'bg-blue-100 text-blue-700'
+              : 'bg-green-100 text-green-700'
+          }`}>
+            {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
           </span>
         </div>
       </div>

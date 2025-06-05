@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, MapPin, Users } from 'lucide-react';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
 import NewsCard from '../components/NewsCard';
 import ArticleDetail from '../components/ArticleDetail';
 import SettingsScreen from '../components/SettingsScreen';
+import LandingSection from '../components/LandingSection';
 import { useNews } from '../hooks/useNews';
 import { Location, NewsFilter, Language, NewsArticle } from '../types/news';
 
@@ -16,6 +18,7 @@ const Index = () => {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState<Language>('nl');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
 
   const { articles, favoriteArticles, loading, toggleFavorite } = useNews(currentLocation, activeFilter);
 
@@ -25,6 +28,7 @@ const Index = () => {
       const savedLocation = localStorage.getItem('newsapp-location');
       if (savedLocation) {
         setCurrentLocation(JSON.parse(savedLocation));
+        setShowLanding(false);
       }
     }
   }, [currentLocation]);
@@ -32,6 +36,7 @@ const Index = () => {
   const handleLocationChange = (location: Location) => {
     setCurrentLocation(location);
     localStorage.setItem('newsapp-location', JSON.stringify(location));
+    setShowLanding(false);
   };
 
   const handleLanguageChange = (language: Language) => {
@@ -44,6 +49,10 @@ const Index = () => {
     localStorage.setItem('newsapp-notifications', JSON.stringify(!notificationsEnabled));
   };
 
+  const handleStartApp = () => {
+    setShowLanding(false);
+  };
+
   if (selectedArticle) {
     return (
       <ArticleDetail 
@@ -54,14 +63,25 @@ const Index = () => {
     );
   }
 
+  if (showLanding) {
+    return (
+      <LandingSection 
+        onStart={handleStartApp}
+        onLocationChange={handleLocationChange}
+      />
+    );
+  }
+
   const renderNewsTab = () => (
-    <div className="pb-20">
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6">
-        <h1 className="text-2xl font-bold mb-2">Lokaal Nieuws</h1>
-        <p className="text-orange-100">Blijf op de hoogte, waar je ook bent</p>
+    <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
+      <div className="gradient-orange text-white px-6 pt-12 pb-8">
+        <div className="max-w-sm mx-auto">
+          <h1 className="text-3xl font-bold mb-3">Lokaal Nieuws</h1>
+          <p className="text-orange-100 text-lg">Blijf op de hoogte, waar je ook bent</p>
+        </div>
       </div>
       
-      <div className="p-4">
+      <div className="max-w-sm mx-auto px-6 -mt-4">
         <LocationPicker 
           currentLocation={currentLocation}
           onLocationChange={handleLocationChange}
@@ -73,14 +93,18 @@ const Index = () => {
         onFilterChange={setActiveFilter}
       />
       
-      <div className="p-4 space-y-4">
+      <div className="max-w-sm mx-auto px-6 py-6 space-y-6">
         {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-pulse">Nieuws laden...</div>
+          <div className="flex justify-center py-12">
+            <div className="text-gray-500">Nieuws laden...</div>
           </div>
         ) : articles.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            Geen artikelen gevonden voor deze filter.
+          <div className="text-center py-12 text-gray-500">
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Users className="mx-auto mb-4 text-gray-300" size={48} />
+              <p className="text-lg font-medium mb-2">Geen artikelen gevonden</p>
+              <p className="text-sm">Probeer een andere filter of locatie.</p>
+            </div>
           </div>
         ) : (
           articles.map((article) => (
@@ -97,20 +121,22 @@ const Index = () => {
   );
 
   const renderFavoritesTab = () => (
-    <div className="pb-20">
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6">
-        <h1 className="text-2xl font-bold mb-2">Favorieten</h1>
-        <p className="text-orange-100">Jouw opgeslagen artikelen</p>
+    <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
+      <div className="gradient-orange text-white px-6 pt-12 pb-8">
+        <div className="max-w-sm mx-auto">
+          <h1 className="text-3xl font-bold mb-3">Favorieten</h1>
+          <p className="text-orange-100 text-lg">Jouw opgeslagen artikelen</p>
+        </div>
       </div>
       
-      <div className="p-4 space-y-4">
+      <div className="max-w-sm mx-auto px-6 py-6 space-y-6">
         {favoriteArticles.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <div className="mb-4">
-              <Bookmark className="mx-auto text-gray-300" size={48} />
+          <div className="text-center py-12">
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Bookmark className="mx-auto mb-4 text-gray-300" size={48} />
+              <p className="text-lg font-medium mb-2">Nog geen favorieten</p>
+              <p className="text-sm text-gray-500 mb-4">Tik op het bladwijzer-icoon bij artikelen om ze op te slaan.</p>
             </div>
-            <p>Nog geen favorieten opgeslagen.</p>
-            <p className="text-sm mt-2">Tik op het bladwijzer-icoon bij artikelen om ze op te slaan.</p>
           </div>
         ) : (
           favoriteArticles.map((article) => (
@@ -127,24 +153,28 @@ const Index = () => {
   );
 
   const renderSettingsTab = () => (
-    <div className="pb-20">
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6">
-        <h1 className="text-2xl font-bold mb-2">Instellingen</h1>
-        <p className="text-orange-100">Personaliseer jouw nieuws ervaring</p>
+    <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
+      <div className="gradient-orange text-white px-6 pt-12 pb-8">
+        <div className="max-w-sm mx-auto">
+          <h1 className="text-3xl font-bold mb-3">Instellingen</h1>
+          <p className="text-orange-100 text-lg">Personaliseer jouw ervaring</p>
+        </div>
       </div>
       
-      <SettingsScreen
-        currentLocation={currentLocation}
-        currentLanguage={currentLanguage}
-        onLanguageChange={handleLanguageChange}
-        notificationsEnabled={notificationsEnabled}
-        onNotificationsToggle={handleNotificationsToggle}
-      />
+      <div className="max-w-sm mx-auto">
+        <SettingsScreen
+          currentLocation={currentLocation}
+          currentLanguage={currentLanguage}
+          onLanguageChange={handleLanguageChange}
+          notificationsEnabled={notificationsEnabled}
+          onNotificationsToggle={handleNotificationsToggle}
+        />
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: '#faf9f7' }}>
       {activeTab === 'news' && renderNewsTab()}
       {activeTab === 'favorites' && renderFavoritesTab()}
       {activeTab === 'settings' && renderSettingsTab()}
