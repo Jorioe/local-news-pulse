@@ -67,7 +67,7 @@ const Index = () => {
 
   const renderNewsTab = () => (
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
-      <div className="gradient-orange text-white px-4 sm:px-6 pt-12 pb-8">
+      <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">Lokaal Nieuws</h1>
           <p className="text-orange-100 text-base sm:text-lg text-center">Blijf op de hoogte, waar je ook bent</p>
@@ -119,7 +119,7 @@ const Index = () => {
 
   const renderSettingsTab = () => (
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
-      <div className="gradient-orange text-white px-4 sm:px-6 pt-12 pb-8">
+      <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">Instellingen</h1>
           <p className="text-orange-100 text-base sm:text-lg text-center">Personaliseer jouw ervaring</p>

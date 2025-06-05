@@ -40,7 +40,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               {article.isFavorite ? (
-                <BookmarkMinus className="text-orange-500" size={24} />
+                <BookmarkMinus className="text-foreground" size={24} />
               ) : (
                 <Bookmark className="text-gray-600" size={24} />
               )}
@@ -66,7 +66,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
 
         {/* Article Header */}
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-accent leading-tight mb-4">
             {article.title}
           </h1>
           

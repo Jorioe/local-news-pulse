@@ -9,17 +9,5 @@ export interface NewsArticle {
   source: string;
   author: string;
   category: 'lokaal' | 'regionaal' | 'belangrijk';
-  isFavorite?: boolean;
   relevanceScore: number;
-}
-
-export interface Location {
-  city: string;
-  region: string;
-  country: string;
-  lat: number;
-  lon: number;
-}
-
-export type NewsFilter = 'alles' | 'lokaal' | 'regionaal' | 'belangrijk';
-export type Language = 'nl' | 'en' | 'fr';
+} 
