@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Bookmark, MapPin, Users } from 'lucide-react';
+import { MapPin, Users } from 'lucide-react';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
@@ -20,7 +20,7 @@ const Index = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
 
-  const { articles, favoriteArticles, loading, toggleFavorite } = useNews(currentLocation, activeFilter);
+  const { articles, loading, toggleFavorite } = useNews(currentLocation, activeFilter);
 
   useEffect(() => {
     // Try to detect location on app load
@@ -74,14 +74,14 @@ const Index = () => {
 
   const renderNewsTab = () => (
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
-      <div className="gradient-orange text-white px-6 pt-12 pb-8">
-        <div className="max-w-sm mx-auto">
-          <h1 className="text-3xl font-bold mb-3">Lokaal Nieuws</h1>
-          <p className="text-orange-100 text-lg">Blijf op de hoogte, waar je ook bent</p>
+      <div className="gradient-orange text-white px-4 sm:px-6 pt-12 pb-8">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-3">Lokaal Nieuws</h1>
+          <p className="text-orange-100 text-base sm:text-lg">Blijf op de hoogte, waar je ook bent</p>
         </div>
       </div>
       
-      <div className="max-w-sm mx-auto px-6 -mt-4">
+      <div className="max-w-md mx-auto px-4 sm:px-6 -mt-4">
         <LocationPicker 
           currentLocation={currentLocation}
           onLocationChange={handleLocationChange}
@@ -93,14 +93,14 @@ const Index = () => {
         onFilterChange={setActiveFilter}
       />
       
-      <div className="max-w-sm mx-auto px-6 py-6 space-y-6">
+      <div className="max-w-md mx-auto px-4 sm:px-6 py-6 space-y-4 sm:space-y-6">
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="text-gray-500">Nieuws laden...</div>
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <div className="bg-white rounded-2xl p-8 shadow-sm">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm">
               <Users className="mx-auto mb-4 text-gray-300" size={48} />
               <p className="text-lg font-medium mb-2">Geen artikelen gevonden</p>
               <p className="text-sm">Probeer een andere filter of locatie.</p>
@@ -120,48 +120,16 @@ const Index = () => {
     </div>
   );
 
-  const renderFavoritesTab = () => (
-    <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
-      <div className="gradient-orange text-white px-6 pt-12 pb-8">
-        <div className="max-w-sm mx-auto">
-          <h1 className="text-3xl font-bold mb-3">Favorieten</h1>
-          <p className="text-orange-100 text-lg">Jouw opgeslagen artikelen</p>
-        </div>
-      </div>
-      
-      <div className="max-w-sm mx-auto px-6 py-6 space-y-6">
-        {favoriteArticles.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-2xl p-8 shadow-sm">
-              <Bookmark className="mx-auto mb-4 text-gray-300" size={48} />
-              <p className="text-lg font-medium mb-2">Nog geen favorieten</p>
-              <p className="text-sm text-gray-500 mb-4">Tik op het bladwijzer-icoon bij artikelen om ze op te slaan.</p>
-            </div>
-          </div>
-        ) : (
-          favoriteArticles.map((article) => (
-            <NewsCard
-              key={article.id}
-              article={article}
-              onToggleFavorite={toggleFavorite}
-              onClick={setSelectedArticle}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-
   const renderSettingsTab = () => (
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
-      <div className="gradient-orange text-white px-6 pt-12 pb-8">
-        <div className="max-w-sm mx-auto">
-          <h1 className="text-3xl font-bold mb-3">Instellingen</h1>
-          <p className="text-orange-100 text-lg">Personaliseer jouw ervaring</p>
+      <div className="gradient-orange text-white px-4 sm:px-6 pt-12 pb-8">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-3">Instellingen</h1>
+          <p className="text-orange-100 text-base sm:text-lg">Personaliseer jouw ervaring</p>
         </div>
       </div>
       
-      <div className="max-w-sm mx-auto">
+      <div className="max-w-md mx-auto">
         <SettingsScreen
           currentLocation={currentLocation}
           currentLanguage={currentLanguage}
@@ -176,7 +144,6 @@ const Index = () => {
   return (
     <div className="min-h-screen" style={{ background: '#faf9f7' }}>
       {activeTab === 'news' && renderNewsTab()}
-      {activeTab === 'favorites' && renderFavoritesTab()}
       {activeTab === 'settings' && renderSettingsTab()}
       
       <BottomTabBar 

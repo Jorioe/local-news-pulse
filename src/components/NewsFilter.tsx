@@ -16,12 +16,12 @@ const NewsFilterComponent: React.FC<NewsFilterProps> = ({ activeFilter, onFilter
   ];
 
   return (
-    <div className="flex gap-3 px-6 py-4 overflow-x-auto">
+    <div className="flex gap-2 sm:gap-3 px-4 sm:px-6 py-4 overflow-x-auto">
       {filters.map((filter) => (
         <button
           key={filter.value}
           onClick={() => onFilterChange(filter.value)}
-          className={`whitespace-nowrap px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+          className={`whitespace-nowrap px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
             activeFilter === filter.value
               ? 'bg-orange-500 text-white shadow-lg'
               : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
