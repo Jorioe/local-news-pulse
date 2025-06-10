@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowLeft, Bookmark, BookmarkMinus, MapPin, Share } from 'lucide-react';
 import { NewsArticle } from '../types/news';
@@ -12,49 +11,69 @@ interface ArticleDetailProps {
 const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggleFavorite }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('nl-NL', { 
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds} seconden geleden`;
+    }
+    
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'minuut' : 'minuten'} geleden`;
+    }
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return `${diffInHours} ${diffInHours === 1 ? 'uur' : 'uur'} geleden`;
+    }
+    
+    return date.toLocaleDateString('nl-NL', {
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: 'long',
+      year: 'numeric'
     });
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-10">
-        <div className="flex items-center justify-between p-4">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft size={24} className="text-gray-700" />
-          </button>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onToggleFavorite(article.id)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+      <div className="sticky top-0 z-50 bg-white border-b mb-4">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="h-16 flex items-center justify-between">
+            <button 
+              onClick={onBack}
+              className="flex items-center text-gray-600 hover:text-gray-900"
             >
-              {article.isFavorite ? (
-                <BookmarkMinus className="text-foreground" size={24} />
-              ) : (
-                <Bookmark className="text-gray-600" size={24} />
-              )}
+              <ArrowLeft size={20} className="mr-1" />
+              <span>Terug</span>
             </button>
             
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Share size={24} className="text-gray-600" />
-            </button>
+            <div className="flex items-center space-x-2">
+              {/* <button
+                onClick={() => onToggleFavorite(article.id)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                {article.isFavorite ? (
+                  <BookmarkMinus className="text-orange-500" size={20} />
+                ) : (
+                  <Bookmark className="text-gray-600" size={20} />
+                )}
+              </button>
+              
+              <button 
+                onClick={() => navigator.share({ url: article.url })}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <Share size={20} className="text-gray-600" />
+              </button> */}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 pb-8">
+      <div className="max-w-4xl mx-auto px-4 pb-8 text-gray-900">
         {/* Hero Image */}
         <div className="aspect-video bg-gray-200 rounded-xl overflow-hidden mb-6">
           <img 
@@ -77,7 +96,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
             </div>
             
             <span>•</span>
-            <span>{formatDate(article.publishedAt)}</span>
+            <span>{article.relativeTime || formatDate(article.publishedAt)}</span>
           </div>
           
           <div className="flex items-center justify-between">
@@ -101,13 +120,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
 
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">
-          <div className="text-gray-800 leading-relaxed">
-            {article.content.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mb-4">
-                {paragraph}
-              </p>
-            ))}
-          </div>
+          <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </div>
       </div>
     </div>

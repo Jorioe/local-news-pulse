@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { MapPin, Users } from 'lucide-react';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
 import NewsCard from '../components/NewsCard';
-import ArticleDetail from '../components/ArticleDetail';
 import SettingsScreen from '../components/SettingsScreen';
 import { useNews } from '../hooks/useNews';
 import { Location, NewsFilter, Language, NewsArticle } from '../types/news';
@@ -14,7 +12,6 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('news');
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('alles');
-  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState<Language>('nl');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
@@ -32,7 +29,9 @@ const Index = () => {
           city: 'Amsterdam',
           region: 'Noord-Holland',
           country: 'Nederland',
-          coordinates: { lat: 52.3676, lng: 4.9041 }
+          nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
+          lat: 52.3676,
+          lon: 4.9041
         };
         setCurrentLocation(defaultLocation);
         localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
@@ -54,16 +53,6 @@ const Index = () => {
     setNotificationsEnabled(!notificationsEnabled);
     localStorage.setItem('newsapp-notifications', JSON.stringify(!notificationsEnabled));
   };
-
-  if (selectedArticle) {
-    return (
-      <ArticleDetail 
-        article={selectedArticle}
-        onBack={() => setSelectedArticle(null)}
-        onToggleFavorite={toggleFavorite}
-      />
-    );
-  }
 
   const renderNewsTab = () => (
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
@@ -108,7 +97,6 @@ const Index = () => {
                 key={article.id}
                 article={article}
                 onToggleFavorite={toggleFavorite}
-                onClick={setSelectedArticle}
               />
             ))}
           </div>

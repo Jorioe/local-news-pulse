@@ -11,12 +11,15 @@ export interface NewsArticle {
   category: 'lokaal' | 'regionaal' | 'belangrijk';
   isFavorite?: boolean;
   relevanceScore: number;
+  url: string;
+  relativeTime?: string;
 }
 
 export interface Location {
   city: string;
   region: string;
   country: string;
+  nearbyCities: string[];
   lat: number;
   lon: number;
 }

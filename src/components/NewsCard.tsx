@@ -1,15 +1,16 @@
-
 import React from 'react';
 import { Bookmark, BookmarkMinus, MapPin } from 'lucide-react';
 import { NewsArticle } from '../types/news';
+import { useNavigate } from 'react-router-dom';
 
 interface NewsCardProps {
   article: NewsArticle;
   onToggleFavorite: (articleId: string) => void;
-  onClick: (article: NewsArticle) => void;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
+  const navigate = useNavigate();
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -20,10 +21,14 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
     return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
   };
 
+  const handleClick = () => {
+    navigate(`/article/${article.id}`);
+  };
+
   return (
     <div 
       className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full"
-      onClick={() => onClick(article)}
+      onClick={handleClick}
     >
       <div className="aspect-[4/3] bg-gray-200 relative overflow-hidden">
         <img 
@@ -31,7 +36,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
           alt={article.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-4 right-4">
+        {/* <div className="absolute top-4 right-4">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -45,7 +50,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite, onClick 
               <Bookmark className="text-gray-600" size={16} />
             )}
           </button>
-        </div>
+        </div> */}
       </div>
       
       <div className="p-5 flex flex-col flex-1">
