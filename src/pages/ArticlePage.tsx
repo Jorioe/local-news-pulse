@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ArticleDetail from '../components/ArticleDetail';
 import { NewsArticle } from '../types/news';
 import { ExternalLink } from 'lucide-react';
@@ -8,30 +8,40 @@ import { ExternalLink } from 'lucide-react';
 const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  // Fetch article from local storage
+  // Try to find the article in the React Query cache first
   const { data: article, isError } = useQuery<NewsArticle>({
     queryKey: ['article', id],
     queryFn: () => {
-      // Try to find the article in any cached location
-      const cacheKeys = Object.keys(localStorage).filter(key => key.startsWith('news-cache-'));
-      console.log('Looking for article in cache keys:', cacheKeys);
+      // First try to find the article in the React Query cache
+      const queries = queryClient.getQueriesData<NewsArticle[]>({ queryKey: ['news'] });
+      
+      for (const [_, articles] of queries) {
+        if (articles) {
+          const article = articles.find(a => a.id === id);
+          if (article) {
+            return article;
+          }
+        }
+      }
 
+      // If not found in React Query cache, try localStorage as fallback
+      const cacheKeys = Object.keys(localStorage).filter(key => key.startsWith('news-cache-'));
       for (const key of cacheKeys) {
         try {
           const cacheData = JSON.parse(localStorage.getItem(key) || '{}');
-          console.log(`Checking cache ${key}:`, cacheData);
-          
           if (cacheData.articles && Array.isArray(cacheData.articles)) {
             const article = cacheData.articles.find((a: NewsArticle) => a.id === id);
             if (article) {
-              console.log('Found article:', article);
-              // Check if article is favorited
-              const favorites = JSON.parse(localStorage.getItem('newsapp-favorites') || '[]');
-              return {
-                ...article,
-                isFavorite: favorites.includes(article.id)
-              };
+              // Add to React Query cache for future use
+              queryClient.setQueryData(['news', article.location], (old: NewsArticle[] = []) => {
+                if (!old.some(a => a.id === article.id)) {
+                  return [...old, article];
+                }
+                return old;
+              });
+              return article;
             }
           }
         } catch (e) {
@@ -39,9 +49,10 @@ const ArticlePage: React.FC = () => {
         }
       }
 
-      console.error('Article not found in any cache');
       throw new Error('Article not found');
     },
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
     retry: false // Don't retry if article is not found
   });
 
@@ -60,6 +71,14 @@ const ArticlePage: React.FC = () => {
     
     // Save to localStorage
     localStorage.setItem('newsapp-favorites', JSON.stringify(newFavorites));
+
+    // Update article in cache
+    if (article) {
+      queryClient.setQueryData(['article', id], {
+        ...article,
+        isFavorite: !article.isFavorite
+      });
+    }
   };
 
   if (isError || !article) {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowLeft, Bookmark, BookmarkMinus, MapPin, Share } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Bookmark, BookmarkMinus, MapPin, Share, Image as ImageIcon } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 
 interface ArticleDetailProps {
@@ -9,6 +9,9 @@ interface ArticleDetailProps {
 }
 
 const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggleFavorite }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -33,6 +36,15 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
       month: 'long',
       year: 'numeric'
     });
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
   };
 
   return (
@@ -75,12 +87,29 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 pb-8 text-gray-900">
         {/* Hero Image */}
-        <div className="aspect-video bg-gray-200 rounded-xl overflow-hidden mb-6">
-          <img 
-            src={article.thumbnail} 
-            alt={article.title}
-            className="w-full h-full object-cover"
-          />
+        <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden mb-6 relative">
+          {imageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+              <div className="animate-pulse w-24 h-24 rounded-full bg-gray-200" />
+            </div>
+          )}
+          
+          {imageError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
+              <ImageIcon className="w-16 h-16 text-gray-400 mb-3" />
+              <span className="text-sm text-gray-500">{article.source}</span>
+            </div>
+          ) : (
+            <img 
+              src={article.thumbnail} 
+              alt={article.title}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${
+                imageLoading ? 'opacity-0' : 'opacity-100'
+              }`}
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+            />
+          )}
         </div>
 
         {/* Article Header */}
@@ -118,9 +147,16 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
           </div>
         </div>
 
-        {/* Article Content */}
+        {/* Article Content - Enhanced image handling */}
         <div className="prose prose-lg max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: article.content }} />
+          <div 
+            dangerouslySetInnerHTML={{ 
+              __html: article.content.replace(
+                /<img([^>]*)>/g, 
+                (match, attributes) => `<img${attributes} loading="lazy" class="rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300" onerror="this.onerror=null; this.src='/news-placeholder.svg';">`
+              ) 
+            }} 
+          />
         </div>
       </div>
     </div>

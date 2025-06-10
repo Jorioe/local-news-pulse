@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#F3F4F6"/>
+  
+  <!-- Newspaper Icon -->
+  <g transform="translate(350,250)">
+    <path d="M80 0H20C8.954 0 0 8.954 0 20v60c0 11.046 8.954 20 20 20h60c11.046 0 20-8.954 20-20V20c0-11.046-8.954-20-20-20z" fill="#E5E7EB"/>
+    <path d="M65 25H35c-1.657 0-3 1.343-3 3v4c0 1.657 1.343 3 3 3h30c1.657 0 3-1.343 3-3v-4c0-1.657-1.343-3-3-3z" fill="#9CA3AF"/>
+    <path d="M65 45H35c-1.657 0-3 1.343-3 3v24c0 1.657 1.343 3 3 3h30c1.657 0 3-1.343 3-3V48c0-1.657-1.343-3-3-3z" fill="#9CA3AF"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="400" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#6B7280" text-anchor="middle">
+    Geen afbeelding beschikbaar
+  </text>
+</svg> 

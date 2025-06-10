@@ -13,6 +13,7 @@ export interface NewsArticle {
   relevanceScore: number;
   url: string;
   relativeTime?: string;
+  sourceType: string;
 }
 
 export interface Location {

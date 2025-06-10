@@ -1,5 +1,5 @@
-import React from 'react';
-import { Bookmark, BookmarkMinus, MapPin } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bookmark, BookmarkMinus, MapPin, Image as ImageIcon } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,8 @@ interface NewsCardProps {
 
 const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -25,17 +27,44 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
     navigate(`/article/${article.id}`);
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
   return (
     <div 
       className="bg-white rounded-2xl shadow-sm border-0 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full"
       onClick={handleClick}
     >
-      <div className="aspect-[4/3] bg-gray-200 relative overflow-hidden">
-        <img 
-          src={article.thumbnail} 
-          alt={article.title}
-          className="w-full h-full object-cover"
-        />
+      <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+        {imageLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+            <div className="animate-pulse w-16 h-16 rounded-full bg-gray-200" />
+          </div>
+        )}
+        
+        {imageError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
+            <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
+            <span className="text-sm text-gray-500">{article.source}</span>
+          </div>
+        ) : (
+          <img 
+            src={article.thumbnail} 
+            alt={article.title}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${
+              imageLoading ? 'opacity-0' : 'opacity-100'
+            }`}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+            loading="lazy"
+          />
+        )}
         {/* <div className="absolute top-4 right-4">
           <button
             onClick={(e) => {

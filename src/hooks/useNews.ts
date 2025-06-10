@@ -1,49 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { NewsArticle, Location, NewsFilter } from '../types/news';
 import { getNews } from '../services/newsService';
+import { useState, useEffect } from 'react';
 
 export const useNews = (location: Location | null, filter: NewsFilter) => {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
+  // Load favorites from localStorage
   useEffect(() => {
-    // Load favorites from localStorage
     const savedFavorites = localStorage.getItem('newsapp-favorites');
     if (savedFavorites) {
       setFavorites(JSON.parse(savedFavorites));
     }
   }, []);
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      if (!location) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const newsArticles = await getNews(location);
-        // Sort articles by date (newest first) and add favorite status
-        const sortedArticles = newsArticles
-          .map(article => ({
-            ...article,
-            isFavorite: favorites.includes(article.id)
-          }))
-          .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-        
-        setArticles(sortedArticles);
-      } catch (error) {
-        setError('Failed to fetch news articles');
-        console.error('Error fetching news:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNews();
-  }, [location, favorites]);
+  // Use React Query for news data
+  const { data: articles = [], isLoading, error } = useQuery<NewsArticle[]>({
+    queryKey: ['news', location?.city, location?.region],
+    queryFn: async () => {
+      if (!location) return [];
+      const newsArticles = await getNews(location);
+      return newsArticles.map(article => ({
+        ...article,
+        isFavorite: favorites.includes(article.id)
+      }));
+    },
+    enabled: !!location,
+    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: false // Don't refetch when window regains focus
+  });
 
   const toggleFavorite = (articleId: string) => {
     const newFavorites = favorites.includes(articleId)
@@ -53,11 +40,13 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     setFavorites(newFavorites);
     localStorage.setItem('newsapp-favorites', JSON.stringify(newFavorites));
     
-    // Update the favorite status in the articles list
-    setArticles(articles.map(article => ({
-      ...article,
-      isFavorite: article.id === articleId ? !article.isFavorite : article.isFavorite
-    })));
+    // Update the article in the cache
+    queryClient.setQueryData<NewsArticle[]>(['news', location?.city, location?.region], 
+      (oldData = []) => oldData.map(article => ({
+        ...article,
+        isFavorite: article.id === articleId ? !article.isFavorite : article.isFavorite
+      }))
+    );
   };
 
   const getFilteredArticles = () => {
@@ -72,8 +61,8 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
   return {
     articles: getFilteredArticles(),
     favoriteArticles: getFavoriteArticles(),
-    loading,
-    error,
+    loading: isLoading,
+    error: error ? 'Failed to fetch news articles' : null,
     toggleFavorite
   };
 };

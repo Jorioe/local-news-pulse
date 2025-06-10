@@ -15,27 +15,44 @@ const Index = () => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('nl');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  const { articles, loading, toggleFavorite } = useNews(currentLocation, activeFilter);
+  const { articles, loading, error, toggleFavorite } = useNews(currentLocation, activeFilter);
 
   useEffect(() => {
-    // Set default location if none exists
-    if (!currentLocation) {
-      const savedLocation = localStorage.getItem('newsapp-location');
-      if (savedLocation) {
-        setCurrentLocation(JSON.parse(savedLocation));
-      } else {
-        // Set Amsterdam as default location
-        const defaultLocation: Location = {
-          city: 'Amsterdam',
-          region: 'Noord-Holland',
-          country: 'Nederland',
-          nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
-          lat: 52.3676,
-          lon: 4.9041
-        };
-        setCurrentLocation(defaultLocation);
-        localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
+    try {
+      // Set default location if none exists
+      if (!currentLocation) {
+        const savedLocation = localStorage.getItem('newsapp-location');
+        if (savedLocation) {
+          const parsedLocation = JSON.parse(savedLocation);
+          console.log('Loading saved location:', parsedLocation);
+          setCurrentLocation(parsedLocation);
+        } else {
+          // Set Amsterdam as default location
+          const defaultLocation: Location = {
+            city: 'Amsterdam',
+            region: 'Noord-Holland',
+            country: 'Nederland',
+            nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
+            lat: 52.3676,
+            lon: 4.9041
+          };
+          console.log('Setting default location:', defaultLocation);
+          setCurrentLocation(defaultLocation);
+          localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
+        }
       }
+    } catch (error) {
+      console.error('Error setting up location:', error);
+      // If there's an error, set a fallback location
+      const fallbackLocation: Location = {
+        city: 'Amsterdam',
+        region: 'Noord-Holland',
+        country: 'Nederland',
+        nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
+        lat: 52.3676,
+        lon: 4.9041
+      };
+      setCurrentLocation(fallbackLocation);
     }
   }, [currentLocation]);
 
@@ -128,13 +145,29 @@ const Index = () => {
 
   return (
     <div className="min-h-screen" style={{ background: '#faf9f7' }}>
-      {activeTab === 'news' && renderNewsTab()}
-      {activeTab === 'settings' && renderSettingsTab()}
-      
-      <BottomTabBar 
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+      {error ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center max-w-md mx-auto px-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Er is een fout opgetreden</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-orange-600 hover:bg-orange-700"
+            >
+              Probeer opnieuw
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {activeTab === 'news' && renderNewsTab()}
+          {activeTab === 'settings' && renderSettingsTab()}
+          <BottomTabBar 
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        </>
+      )}
     </div>
   );
 };
