@@ -14,6 +14,7 @@ export interface NewsArticle {
   url: string;
   relativeTime?: string;
   sourceType: string;
+  rawRssContent?: string;
 }
 
 export interface Location {

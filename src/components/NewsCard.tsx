@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bookmark, BookmarkMinus, MapPin, Image as ImageIcon } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +10,15 @@ interface NewsCardProps {
 
 const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
   const navigate = useNavigate();
-  const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    // Reset state when the article prop changes.
+    // If the thumbnail is empty/falsy initially, it will trigger onError immediately.
+    setImageError(false);
+    setImageLoading(true);
+  }, [article.thumbnail]);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -24,16 +31,20 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
   };
 
   const handleClick = () => {
-    navigate(`/article/${article.id}`);
+    // Navigate to the article detail page and pass the article object in the state
+    navigate(`/article/${article.id}`, { state: { article } });
   };
 
   const handleImageError = () => {
-    setImageError(true);
+    console.error(`❌ NewsCard: Image FAILED to load for article: "${article.title}". Attempted URL was: "${article.thumbnail}"`);
     setImageLoading(false);
+    setImageError(true);
   };
 
   const handleImageLoad = () => {
+    console.log(`✅ NewsCard: Image loaded successfully for article: "${article.title}".`);
     setImageLoading(false);
+    setImageError(false);
   };
 
   return (
@@ -49,14 +60,15 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
         )}
         
         {imageError ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
-            <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
-            <span className="text-sm text-gray-500">{article.source}</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 p-4 text-center">
+            <ImageIcon className="w-12 h-12 text-gray-300 mb-2" />
+            <span className="text-xs text-gray-400">Geen afbeelding</span>
           </div>
         ) : (
           <img 
             src={article.thumbnail} 
             alt={article.title}
+            crossOrigin="anonymous"
             className={`w-full h-full object-cover transition-opacity duration-300 ${
               imageLoading ? 'opacity-0' : 'opacity-100'
             }`}

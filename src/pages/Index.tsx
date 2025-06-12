@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Users } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { MapPin, Users, Loader2 } from 'lucide-react';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
@@ -15,31 +16,49 @@ const Index = () => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('nl');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  const { articles, loading, error, toggleFavorite } = useNews(currentLocation, activeFilter);
+  const { 
+    articles, 
+    loading, 
+    error, 
+    toggleFavorite,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useNews(currentLocation, activeFilter);
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+    triggerOnce: false,
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      console.log("Bottom in view, fetching next page...");
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     try {
       // Set default location if none exists
-      if (!currentLocation) {
-        const savedLocation = localStorage.getItem('newsapp-location');
-        if (savedLocation) {
-          const parsedLocation = JSON.parse(savedLocation);
-          console.log('Loading saved location:', parsedLocation);
-          setCurrentLocation(parsedLocation);
-        } else {
-          // Set Amsterdam as default location
-          const defaultLocation: Location = {
-            city: 'Amsterdam',
-            region: 'Noord-Holland',
-            country: 'Nederland',
-            nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
-            lat: 52.3676,
-            lon: 4.9041
-          };
-          console.log('Setting default location:', defaultLocation);
-          setCurrentLocation(defaultLocation);
-          localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
-        }
+      const savedLocation = localStorage.getItem('newsapp-location');
+      if (savedLocation) {
+        const parsedLocation = JSON.parse(savedLocation);
+        console.log('Loading saved location:', parsedLocation);
+        setCurrentLocation(parsedLocation);
+      } else {
+        // Set Amsterdam as default location
+        const defaultLocation: Location = {
+          city: 'Amsterdam',
+          region: 'Noord-Holland',
+          country: 'Nederland',
+          nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
+          lat: 52.3676,
+          lon: 4.9041
+        };
+        console.log('Setting default location:', defaultLocation);
+        setCurrentLocation(defaultLocation);
+        localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
       }
     } catch (error) {
       console.error('Error setting up location:', error);
@@ -54,7 +73,7 @@ const Index = () => {
       };
       setCurrentLocation(fallbackLocation);
     }
-  }, [currentLocation]);
+  }, []);
 
   const handleLocationChange = (location: Location) => {
     setCurrentLocation(location);
@@ -118,6 +137,26 @@ const Index = () => {
             ))}
           </div>
         )}
+
+        {/* Load More Trigger */}
+        <div ref={ref} className="mt-6 text-center">
+          {isFetchingNextPage ? (
+            <div className="flex items-center justify-center gap-2 text-gray-500">
+              <Loader2 className="animate-spin h-5 w-5" />
+              <span>Meer artikelen laden...</span>
+            </div>
+          ) : hasNextPage ? (
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="px-6 py-2 bg-white border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition"
+            >
+              Meer laden
+            </button>
+          ) : (
+            articles.length > 0 && <p className="text-gray-400">Dat was al het nieuws.</p>
+          )}
+        </div>
       </div>
     </div>
   );

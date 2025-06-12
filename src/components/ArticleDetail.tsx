@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Bookmark, BookmarkMinus, MapPin, Share, Image as ImageIcon } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 
@@ -39,6 +39,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
   };
 
   const handleImageError = () => {
+    console.error(`ArticleDetail: Image failed to load. URL: ${article.thumbnail}`);
     setImageError(true);
     setImageLoading(false);
   };
@@ -46,6 +47,10 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
   const handleImageLoad = () => {
     setImageLoading(false);
   };
+
+  useEffect(() => {
+    // ... existing code ...
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -95,14 +100,15 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
           )}
           
           {imageError ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
-              <ImageIcon className="w-16 h-16 text-gray-400 mb-3" />
-              <span className="text-sm text-gray-500">{article.source}</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 text-center p-4">
+              <ImageIcon className="w-16 h-16 text-gray-300 mb-3" />
+              <span className="text-sm text-gray-400">Geen afbeelding</span>
             </div>
           ) : (
             <img 
               src={article.thumbnail} 
               alt={article.title}
+              crossOrigin="anonymous"
               className={`w-full h-full object-cover transition-opacity duration-300 ${
                 imageLoading ? 'opacity-0' : 'opacity-100'
               }`}

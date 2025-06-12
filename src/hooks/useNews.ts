@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { NewsArticle, Location, NewsFilter } from '../types/news';
 import { getNews } from '../services/newsService';
 import { useState, useEffect } from 'react';
@@ -15,21 +15,33 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     }
   }, []);
 
-  // Use React Query for news data
-  const { data: articles = [], isLoading, error } = useQuery<NewsArticle[]>({
+  // Use React Query's useInfiniteQuery for pagination
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
     queryKey: ['news', location?.city, location?.region],
-    queryFn: async () => {
-      if (!location) return [];
-      const newsArticles = await getNews(location);
-      return newsArticles.map(article => ({
+    queryFn: async ({ pageParam = 1 }) => {
+      if (!location) return { articles: [], hasMore: false };
+      const pageData = await getNews(location, pageParam);
+      // Map favorites status to the newly fetched articles
+      const articlesWithFavorites = pageData.articles.map(article => ({
         ...article,
         isFavorite: favorites.includes(article.id)
       }));
+      return { ...pageData, articles: articlesWithFavorites };
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.hasMore ? allPages.length + 1 : undefined;
     },
     enabled: !!location,
-    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
+    initialPageParam: 1,
+    gcTime: 10 * 60 * 1000, // Keep data in cache for 10 minutes
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    refetchOnWindowFocus: false // Don't refetch when window regains focus
   });
 
   const toggleFavorite = (articleId: string) => {
@@ -40,22 +52,35 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     setFavorites(newFavorites);
     localStorage.setItem('newsapp-favorites', JSON.stringify(newFavorites));
     
-    // Update the article in the cache
-    queryClient.setQueryData<NewsArticle[]>(['news', location?.city, location?.region], 
-      (oldData = []) => oldData.map(article => ({
-        ...article,
-        isFavorite: article.id === articleId ? !article.isFavorite : article.isFavorite
-      }))
+    // Update the article in the infinite query cache
+    queryClient.setQueryData(
+      ['news', location?.city, location?.region], 
+      (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            articles: page.articles.map((article: NewsArticle) => 
+              article.id === articleId 
+                ? { ...article, isFavorite: !article.isFavorite } 
+                : article
+            ),
+          })),
+        };
+      }
     );
   };
 
+  const allArticles = data?.pages.flatMap(page => page.articles) || [];
+
   const getFilteredArticles = () => {
-    if (filter === 'alles') return articles;
-    return articles.filter(article => article.category === filter);
+    if (filter === 'alles') return allArticles;
+    return allArticles.filter(article => article.category === filter);
   };
 
   const getFavoriteArticles = () => {
-    return articles.filter(article => article.isFavorite);
+    return allArticles.filter(article => article.isFavorite);
   };
 
   return {
@@ -63,6 +88,9 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     favoriteArticles: getFavoriteArticles(),
     loading: isLoading,
     error: error ? 'Failed to fetch news articles' : null,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     toggleFavorite
   };
 };
