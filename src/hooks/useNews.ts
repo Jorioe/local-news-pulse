@@ -24,10 +24,10 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['news', location?.city, location?.region],
+    queryKey: ['news', location?.city, location?.region, filter],
     queryFn: async ({ pageParam = 1 }) => {
       if (!location) return { articles: [], hasMore: false };
-      const pageData = await getNews(location, pageParam);
+      const pageData = await getNews(location, pageParam, filter);
       // Map favorites status to the newly fetched articles
       const articlesWithFavorites = pageData.articles.map(article => ({
         ...article,
@@ -54,7 +54,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     
     // Update the article in the infinite query cache
     queryClient.setQueryData(
-      ['news', location?.city, location?.region], 
+      ['news', location?.city, location?.region, filter], 
       (oldData: any) => {
         if (!oldData) return oldData;
         return {
@@ -74,18 +74,8 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
 
   const allArticles = data?.pages.flatMap(page => page.articles) || [];
 
-  const getFilteredArticles = () => {
-    if (filter === 'alles') return allArticles;
-    return allArticles.filter(article => article.category === filter);
-  };
-
-  const getFavoriteArticles = () => {
-    return allArticles.filter(article => article.isFavorite);
-  };
-
   return {
-    articles: getFilteredArticles(),
-    favoriteArticles: getFavoriteArticles(),
+    articles: allArticles,
     loading: isLoading,
     error: error ? 'Failed to fetch news articles' : null,
     fetchNextPage,
