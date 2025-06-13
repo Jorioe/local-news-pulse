@@ -307,25 +307,35 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
     return acc;
   }, []);
   
+  const internationalPlaceNames = [
+    'india', 'verenigde staten', 'vs', 'china', 'frankrijk', 'spanje', 'italië', 'turkije', 'mexico', 'thailand', 'duitsland', 'belgië', 'verenigd koninkrijk', 'vk',
+    'parijs', 'toulouse', 'barcelona', 'valencia', 'new york', 'san francisco', 'rome', 'milaan', 'istanbul', 'mexico-stad', 'guadalajara', 'bangkok', 'münchen', 'antwerpen', 'luik', 'londen', 'manchester'
+  ];
+
   const dutchCityTerms = [
-    'eindhoven', 'tilburg', 'breda', 'den bosch', 's-hertogenbosch', 'roosendaal', 'bergen op zoom', 'etten-leur', 'oosterhout', 'waalwijk', 'moerdijk', 'zevenbergen', 'klundert', 'willemstad', 'fijnaart', 'standdaarbuiten', 'noordhoek', 'oudenbosch', 'rotterdam', 'den haag', 'leiden', 'dordrecht', 'delft', 'gouda', 'zoetermeer', 'amsterdam', 'haarlem', 'alkmaar', 'zaanstad', 'hoorn', 'amstelveen', 'utrecht', 'amersfoort', 'nieuwegein', 'zeist', 'vianen', 'nijmegen', 'arnhem', 'apeldoorn', 'ede', 'zutphen', 'enschede', 'zwolle', 'deventer', 'hengelo', 'almelo', 'maastricht', 'heerlen', 'venlo', 'sittard', 'roermond', 'leeuwarden', 'drachten', 'sneek', 'heerenveen', 'groningen', 'delfzijl', 'assen', 'emmen', 'meppel', 'middelburg', 'vlissingen', 'goes', 'terneuzen', 'almere', 'lelystad', 'brabant'
+    'eersel', 'eindhoven', 'tilburg', 'breda', 'den bosch', 's-hertogenbosch', 'roosendaal', 'bergen op zoom', 'etten-leur', 'oosterhout', 'waalwijk', 'moerdijk', 'zevenbergen', 'klundert', 'willemstad', 'fijnaart', 'standdaarbuiten', 'noordhoek', 'oudenbosch', 'rotterdam', 'den haag', 'leiden', 'dordrecht', 'delft', 'gouda', 'zoetermeer', 'amsterdam', 'haarlem', 'alkmaar', 'zaanstad', 'hoorn', 'amstelveen', 'utrecht', 'amersfoort', 'nieuwegein', 'zeist', 'vianen', 'nijmegen', 'arnhem', 'apeldoorn', 'ede', 'zutphen', 'enschede', 'zwolle', 'deventer', 'hengelo', 'almelo', 'maastricht', 'heerlen', 'venlo', 'sittard', 'roermond', 'leeuwarden', 'drachten', 'sneek', 'heerenveen', 'groningen', 'delfzijl', 'assen', 'emmen', 'meppel', 'middelburg', 'vlissingen', 'goes', 'terneuzen', 'almere', 'lelystad', 'brabant'
   ];
 
   const determineArticleLocation = (text: string, userLocation: Location): string => {
     const lowerText = text.toLowerCase();
     
-    // 1. Check for user's city first for highest relevance
-    if (new RegExp(`\\b${userLocation.city.toLowerCase()}\\b`).test(lowerText)) return userLocation.city;
+    // 1. Search for any known local/regional city in the text first.
+    const localAndRegionalCities = [...new Set([userLocation.city, ...(userLocation.nearbyCities || []), ...dutchCityTerms].map(c => c.toLowerCase()))];
+
+    for (const city of localAndRegionalCities) {
+      if (new RegExp(`\\b${city}\\b`, 'i').test(lowerText)) {
+        return city.charAt(0).toUpperCase() + city.slice(1);
+      }
+    }
+
+    // 2. Search for international place names.
+    for (const place of internationalPlaceNames) {
+      if (new RegExp(`\\b${place}\\b`, 'i').test(lowerText)) {
+        return place.charAt(0).toUpperCase() + place.slice(1);
+      }
+    }
     
-    // 2. Check for nearby cities
-    const nearbyCity = (userLocation.nearbyCities || []).find(city => new RegExp(`\\b${city.toLowerCase()}\\b`).test(lowerText));
-    if (nearbyCity) return nearbyCity;
-    
-    // 3. Check the broader list of Dutch cities
-    const foundCity = dutchCityTerms.find(city => new RegExp(`\\b${city}\\b`).test(lowerText));
-    if (foundCity) return foundCity.charAt(0).toUpperCase() + foundCity.slice(1);
-    
-    // 4. Default to user's city if no other location is found
+    // 3. Default to the user's city only if no other location is found.
     return userLocation.city;
   };
 
@@ -336,32 +346,54 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
     const source = article.source.toLowerCase();
     const articleDisplayLocation = determineArticleLocation(contentText, location);
     const lowerContentText = contentText.toLowerCase();
-    const locationTerms = [location.city.toLowerCase(), ...(location.nearbyCities || []).map(city => city.toLowerCase())];
-    const hasExactCityMatch = locationTerms.some(term => new RegExp(`\\b${term}\\b`, 'gi').test(lowerContentText));
 
-    if (hasExactCityMatch) {
-      relevanceScore += 10;
-      category = 'lokaal';
+    const isNationalSource = DUTCH_NATIONAL_NEWS_SOURCES.some(s => s.name.toLowerCase() === source);
+
+    // Check for relevance to the user's specific location (city + nearby)
+    const locationTerms = [location.city.toLowerCase(), ...(location.nearbyCities || []).map(city => city.toLowerCase())];
+    const hasLocalRelevance = locationTerms.some(term => new RegExp(`\\b${term}\\b`, 'gi').test(lowerContentText));
+    
+    // Check for broader regional relevance (any Dutch city or regional source)
+    const hasBroaderRegionalRelevance = dutchCityTerms.some(term => new RegExp(`\\b${term}\\b`, 'gi').test(lowerContentText)) || source.includes('brabant') || source.includes('bd.nl') || source.includes('bndestem');
+
+    // If it's a national source, it MUST have direct local relevance to the user. Otherwise, filter it out.
+    if (isNationalSource && !hasLocalRelevance) {
+      relevanceScore = 0;
+    } else {
+      // For local sources, or national news with local relevance, calculate the score.
+      if (hasLocalRelevance) {
+        relevanceScore += 10;
+        category = 'lokaal';
+      }
+      
+      if (hasBroaderRegionalRelevance) {
+        relevanceScore += 5;
+        if (category !== 'lokaal') category = 'regionaal';
+      }
+      
+      const importantTerms = ['belangrijk', 'urgent', 'breaking', 'update', 'waarschuwing', 'alert'];
+      if (importantTerms.some(term => lowerContentText.includes(term)) && (hasLocalRelevance || hasBroaderRegionalRelevance)) {
+        relevanceScore += 3;
+        if (category === 'lokaal') category = 'belangrijk';
+      }
+      
+      const ageInHours = (Date.now() - new Date(article.publishedAt).getTime()) / (1000 * 60 * 60);
+      if (ageInHours < 24) {
+        relevanceScore += Math.max(0, (24 - ageInHours) / 24 * 5);
+      } else {
+        relevanceScore *= 0.5;
+      }
+      
+      if (source.includes('brabant') || source.includes('bndestem') || source.includes('bd.nl')) {
+        relevanceScore += 3;
+      }
     }
-    const hasRegionalRelevance = dutchCityTerms.some(term => new RegExp(`\\b${term}\\b`, 'gi').test(lowerContentText)) || source.includes('brabant') || source.includes('bd.nl') || source.includes('bndestem');
-    if (hasRegionalRelevance) {
-      relevanceScore += 5;
-      if (category !== 'lokaal') category = 'regionaal';
-    }
-    const importantTerms = ['belangrijk', 'urgent', 'breaking', 'update', 'waarschuwing', 'alert'];
-    if (importantTerms.some(term => lowerContentText.includes(term)) && (hasExactCityMatch || hasRegionalRelevance)) {
-      relevanceScore += 3;
-      if (category === 'lokaal') category = 'belangrijk';
-    }
-    const ageInHours = (Date.now() - new Date(article.publishedAt).getTime()) / (1000 * 60 * 60);
-    if (ageInHours < 24) relevanceScore += Math.max(0, (24 - ageInHours) / 24 * 5);
-    else relevanceScore *= 0.5;
-    if (source.includes('brabant') || source.includes('bndestem') || source.includes('bd.nl')) relevanceScore += 3;
+    
     return { ...article, location: articleDisplayLocation, relevanceScore, category };
   });
 
   return processedArticles
-    .filter(article => article.relevanceScore > 1) // Less aggressive filtering
+    .filter(article => article.relevanceScore > 4) // Stricter filtering
     .sort((a, b) => {
       const categoryPriority = { 'belangrijk': 3, 'lokaal': 2, 'regionaal': 1 };
       const priorityDiff = categoryPriority[b.category] - categoryPriority[a.category];
@@ -374,22 +406,62 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
 
 // --- CORE FETCHING LOGIC ---
 
-// Fetches all RSS feeds in parallel for maximum speed.
-const fetchRSSFeeds = async (location: Location): Promise<NewsArticle[]> => {
-  let sources = LOCAL_NEWS_SOURCES[location.region] || [];
+const getSourcesForLocation = (location: Location): Array<{ name: string; rssUrl: string; baseUrl: string }> => {
+  let sources = [];
 
-  // Only add Dutch national news for locations in the Netherlands.
-  if (location.country === 'Nederland') {
-    sources = [...sources, ...DUTCH_NATIONAL_NEWS_SOURCES];
+  // 1. Add regional sources from the user's region
+  if (location.region && LOCAL_NEWS_SOURCES[location.region]) {
+    sources.push(...LOCAL_NEWS_SOURCES[location.region]);
   }
-  
+
+  // 2. Add sources for nearby cities by checking their regions
+  if (location.nearbyCities) {
+    for (const city of location.nearbyCities) {
+      // This is a simplified lookup. A more robust solution would map cities to regions.
+      // For now, we iterate through all regions to find a match.
+      for (const region in LOCAL_NEWS_SOURCES) {
+        const regionSources = LOCAL_NEWS_SOURCES[region];
+        if (regionSources.some(source => source.name.toLowerCase().includes(city.toLowerCase()))) {
+          sources.push(...regionSources);
+        }
+      }
+    }
+  }
+
+  // 3. Add national sources for the user's country
+  if (location.country === 'Nederland') {
+    sources.push(...DUTCH_NATIONAL_NEWS_SOURCES);
+  } else {
+    // Add other national sources if applicable
+    const countryKeyPart = location.country.replace(/\s/g, ''); // e.g., 'Verenigd Koninkrijk' -> 'VerenigdKoninkrijk'
+    const nationalKey = Object.keys(LOCAL_NEWS_SOURCES).find(k => 
+      k.toLowerCase().startsWith(location.country.toLowerCase()) && k.includes('Nationaal')
+    );
+    if (nationalKey) {
+      sources.push(...LOCAL_NEWS_SOURCES[nationalKey]);
+    }
+  }
+
+  // Remove duplicates
+  return Array.from(new Set(sources.map(s => s.rssUrl)))
+              .map(url => sources.find(s => s.rssUrl === url)!);
+};
+
+const fetchRSSFeeds = async (location: Location): Promise<NewsArticle[]> => {
   const parser = new XMLParser({
-    ignoreAttributes: false, attributeNamePrefix: "@_", textNodeName: "#text", removeNSPrefix: false,
-    parseAttributeValue: true, parseTagValue: true, trimValues: true, allowBooleanAttributes: true,
-    isArray: (name) => ['item', 'entry', 'media:content', 'media:thumbnail', 'enclosure'].includes(name),
+    ignoreAttributes: false,
+    attributeNamePrefix: "@_",
+    textNodeName: "#text",
+    parseAttributeValue: true,
   });
 
-  const feedPromises = sources.map(async (source) => {
+  const sourcesToFetch = getSourcesForLocation(location);
+  console.log(`Fetching from ${sourcesToFetch.length} sources for ${location.city}`, sourcesToFetch.map(s=>s.name));
+
+
+  let allArticles: NewsArticle[] = [];
+
+  const feedPromises = sourcesToFetch.map(async (source) => {
     try {
       const proxyUrl = `${CORS_PROXY}${encodeURIComponent(source.rssUrl)}`;
       const response = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) }); // 10-second timeout
