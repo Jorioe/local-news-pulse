@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Bell, MapPin, Globe, Smartphone } from 'lucide-react';
 import { Language, Location } from '../types/news';
 
 interface SettingsScreenProps {
-  currentLocation: Location | null;
+  currentLocation: Location;
   currentLanguage: Language;
   onLanguageChange: (language: Language) => void;
   notificationsEnabled: boolean;
@@ -39,10 +38,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <div className="text-gray-600">
             <p className="mb-2 font-medium">Huidige locatie:</p>
             <p className="text-accent text-lg">
-              {currentLocation 
-                ? `${currentLocation.city}, ${currentLocation.region}, ${currentLocation.country}`
-                : 'Geen locatie ingesteld'
-              }
+              {`${currentLocation.city}, ${currentLocation.region}, ${currentLocation.country}`}
             </p>
           </div>
         </div>

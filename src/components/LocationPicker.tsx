@@ -3,7 +3,7 @@ import { MapPin, Search, Loader2 } from 'lucide-react';
 import { Location } from '../types/news';
 
 interface LocationPickerProps {
-  currentLocation: Location | null;
+  currentLocation: Location;
   onLocationChange: (location: Location) => void;
 }
 
@@ -94,11 +94,26 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       );
       const data = await response.json();
       
+      const nearbyCitiesResponse = await fetch(
+        `https://nominatim.openstreetmap.org/search?` +
+        new URLSearchParams({
+          q: `cities near ${lat},${lng}`,
+          format: 'json',
+          addressdetails: '1',
+          'accept-language': 'nl',
+          limit: '5'
+        })
+      );
+      const nearbyCitiesData = await nearbyCitiesResponse.json();
+      const nearbyCities = nearbyCitiesData.map((item: any) => item.name).slice(0, 4);
+
       return {
         city: data.address.city || data.address.town || data.address.village || data.address.municipality || data.name,
-        region: data.address.state || data.address.county || data.address.state_district,
+        region: translateRegion(data.address.state || data.address.county || data.address.state_district || ''),
         country: translateCountry(data.address.country),
-        coordinates: { lat, lng }
+        lat: lat,
+        lon: lng,
+        nearbyCities: nearbyCities
       };
     } catch (error) {
       throw new Error('Kon locatie niet bepalen');
@@ -222,6 +237,22 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
   };
 
   const handleSuggestionClick = async (suggestion: LocationSuggestion) => {
+    const lat = parseFloat(suggestion.lat);
+    const lon = parseFloat(suggestion.lon);
+
+    const nearbyCitiesResponse = await fetch(
+      `https://nominatim.openstreetmap.org/search?` +
+      new URLSearchParams({
+        q: `cities near ${lat},${lon}`,
+        format: 'json',
+        addressdetails: '1',
+        'accept-language': 'nl',
+        limit: '5'
+      })
+    );
+    const nearbyCitiesData = await nearbyCitiesResponse.json();
+    const nearbyCities = nearbyCitiesData.map((item: any) => item.name).slice(0, 4);
+
     const location: Location = {
       city: suggestion.address.city || 
             suggestion.address.town || 
@@ -230,10 +261,9 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
             suggestion.display_name.split(',')[0].trim(),
       region: translateRegion(suggestion.address.state || suggestion.address.county || suggestion.address.state_district || ''),
       country: translateCountry(suggestion.address.country || ''),
-      coordinates: {
-        lat: parseFloat(suggestion.lat),
-        lng: parseFloat(suggestion.lon)
-      }
+      lat: lat,
+      lon: lon,
+      nearbyCities: nearbyCities
     };
     
     onLocationChange(location);

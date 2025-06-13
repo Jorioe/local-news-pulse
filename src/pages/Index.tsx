@@ -9,9 +9,37 @@ import SettingsScreen from '../components/SettingsScreen';
 import { useNews } from '../hooks/useNews';
 import { Location, NewsFilter, Language, NewsArticle } from '../types/news';
 
+const getInitialLocation = (): Location => {
+  try {
+    const savedLocation = localStorage.getItem('newsapp-location');
+    if (savedLocation) {
+      return JSON.parse(savedLocation);
+    }
+  } catch (error) {
+    console.error('Error reading location from localStorage:', error);
+  }
+  
+  const defaultLocation: Location = {
+    city: 'Amsterdam',
+    region: 'Noord-Holland',
+    country: 'Nederland',
+    nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
+    lat: 52.3676,
+    lon: 4.9041
+  };
+
+  try {
+    localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
+  } catch (error) {
+    console.error('Error setting default location in localStorage:', error);
+  }
+
+  return defaultLocation;
+};
+
 const Index = () => {
   const [activeTab, setActiveTab] = useState('news');
-  const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<Location>(getInitialLocation);
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('alles');
   const [currentLanguage, setCurrentLanguage] = useState<Language>('nl');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -37,43 +65,6 @@ const Index = () => {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  useEffect(() => {
-    try {
-      // Set default location if none exists
-      const savedLocation = localStorage.getItem('newsapp-location');
-      if (savedLocation) {
-        const parsedLocation = JSON.parse(savedLocation);
-        console.log('Loading saved location:', parsedLocation);
-        setCurrentLocation(parsedLocation);
-      } else {
-        // Set Amsterdam as default location
-        const defaultLocation: Location = {
-          city: 'Amsterdam',
-          region: 'Noord-Holland',
-          country: 'Nederland',
-          nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
-          lat: 52.3676,
-          lon: 4.9041
-        };
-        console.log('Setting default location:', defaultLocation);
-        setCurrentLocation(defaultLocation);
-        localStorage.setItem('newsapp-location', JSON.stringify(defaultLocation));
-      }
-    } catch (error) {
-      console.error('Error setting up location:', error);
-      // If there's an error, set a fallback location
-      const fallbackLocation: Location = {
-        city: 'Amsterdam',
-        region: 'Noord-Holland',
-        country: 'Nederland',
-        nearbyCities: ['Amstelveen', 'Diemen', 'Zaandam'],
-        lat: 52.3676,
-        lon: 4.9041
-      };
-      setCurrentLocation(fallbackLocation);
-    }
-  }, []);
 
   const handleLocationChange = (location: Location) => {
     setCurrentLocation(location);
