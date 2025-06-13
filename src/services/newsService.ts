@@ -511,44 +511,36 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
 // --- CORE FETCHING LOGIC ---
 
 const getSourcesForLocation = (location: Location): Array<{ name: string; rssUrl: string; baseUrl: string }> => {
-  let sources = [];
+  const sources = new Set<{ name: string; rssUrl: string; baseUrl: string }>();
 
-  // 1. Add regional sources from the user's region
-  if (location.region && LOCAL_NEWS_SOURCES[location.region]) {
-    sources.push(...LOCAL_NEWS_SOURCES[location.region]);
-  }
-
-  // 2. Add sources for nearby cities by checking their regions
-  if (location.nearbyCities) {
-    for (const city of location.nearbyCities) {
-      // This is a simplified lookup. A more robust solution would map cities to regions.
-      // For now, we iterate through all regions to find a match.
-      for (const region in LOCAL_NEWS_SOURCES) {
-        const regionSources = LOCAL_NEWS_SOURCES[region];
-        if (regionSources.some(source => source.name.toLowerCase().includes(city.toLowerCase()))) {
-          sources.push(...regionSources);
-        }
-      }
+  if (location.country === 'Nederland') {
+    // For Dutch locations, add sources from the specific province (region)
+    if (location.region && LOCAL_NEWS_SOURCES[location.region]) {
+      LOCAL_NEWS_SOURCES[location.region].forEach(s => sources.add(s));
+    }
+    // And add national Dutch sources
+    DUTCH_NATIONAL_NEWS_SOURCES.forEach(s => sources.add(s));
+  } else {
+    // For foreign locations, find the list of sources that starts with the country name
+    const countryKey = Object.keys(LOCAL_NEWS_SOURCES).find(k => 
+      k.toLowerCase().startsWith(location.country.toLowerCase())
+    );
+    if (countryKey) {
+      LOCAL_NEWS_SOURCES[countryKey].forEach(s => sources.add(s));
     }
   }
 
-  // 3. Add national sources for the user's country
-  if (location.country === 'Nederland') {
-    sources.push(...DUTCH_NATIONAL_NEWS_SOURCES);
-  } else {
-    // Add other national sources if applicable
-    const countryKeyPart = location.country.replace(/\s/g, ''); // e.g., 'Verenigd Koninkrijk' -> 'VerenigdKoninkrijk'
+  // Fallback to national sources of the user's country if no specific sources were found
+  if (sources.size === 0) {
     const nationalKey = Object.keys(LOCAL_NEWS_SOURCES).find(k => 
-      k.toLowerCase().startsWith(location.country.toLowerCase()) && k.includes('Nationaal')
+      k.toLowerCase().startsWith(location.country.toLowerCase())
     );
     if (nationalKey) {
-      sources.push(...LOCAL_NEWS_SOURCES[nationalKey]);
+      LOCAL_NEWS_SOURCES[nationalKey].forEach(s => sources.add(s));
     }
   }
 
-  // Remove duplicates
-  return Array.from(new Set(sources.map(s => s.rssUrl)))
-              .map(url => sources.find(s => s.rssUrl === url)!);
+  return Array.from(sources);
 };
 
 const fetchRSSFeeds = async (location: Location): Promise<NewsArticle[]> => {
