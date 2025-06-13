@@ -236,24 +236,17 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
     }, 300);
   };
 
-  const handleSuggestionClick = async (suggestion: LocationSuggestion) => {
+  const handleSuggestionClick = (suggestion: LocationSuggestion) => {
+    // Immediately update UI for responsiveness
+    setSearchQuery('');
+    setSuggestions([]);
+    setIsSearching(false);
+
     const lat = parseFloat(suggestion.lat);
     const lon = parseFloat(suggestion.lon);
 
-    const nearbyCitiesResponse = await fetch(
-      `https://nominatim.openstreetmap.org/search?` +
-      new URLSearchParams({
-        q: `cities near ${lat},${lon}`,
-        format: 'json',
-        addressdetails: '1',
-        'accept-language': 'nl',
-        limit: '5'
-      })
-    );
-    const nearbyCitiesData = await nearbyCitiesResponse.json();
-    const nearbyCities = nearbyCitiesData.map((item: any) => item.name).slice(0, 4);
-
-    const location: Location = {
+    // Create location with data we have right now
+    const preliminaryLocation: Location = {
       city: suggestion.address.city || 
             suggestion.address.town || 
             suggestion.address.village || 
@@ -263,13 +256,42 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       country: translateCountry(suggestion.address.country || ''),
       lat: lat,
       lon: lon,
-      nearbyCities: nearbyCities
+      nearbyCities: [] // No nearby cities yet
     };
     
-    onLocationChange(location);
-    setSearchQuery('');
-    setSuggestions([]);
-    setIsSearching(false);
+    // Trigger first update
+    onLocationChange(preliminaryLocation);
+
+    // Asynchronously fetch nearby cities and update again
+    const fetchAndUpdateNearbyCities = async () => {
+      try {
+        const nearbyCitiesResponse = await fetch(
+          `https://nominatim.openstreetmap.org/search?` +
+          new URLSearchParams({
+            q: `cities near ${lat},${lon}`,
+            format: 'json',
+            addressdetails: '1',
+            'accept-language': 'nl',
+            limit: '5'
+          })
+        );
+        const nearbyCitiesData = await nearbyCitiesResponse.json();
+        const nearbyCities = Array.isArray(nearbyCitiesData) 
+          ? nearbyCitiesData.map((item: any) => item.name).slice(0, 4)
+          : [];
+
+        const fullLocation: Location = {
+          ...preliminaryLocation,
+          nearbyCities: nearbyCities
+        };
+        
+        onLocationChange(fullLocation);
+      } catch (e) {
+        console.error("Could not fetch nearby cities", e);
+      }
+    };
+
+    fetchAndUpdateNearbyCities();
   };
 
   const formatSuggestionName = (suggestion: LocationSuggestion): string => {

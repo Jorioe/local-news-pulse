@@ -408,7 +408,7 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
     'india', 'verenigde staten', 'vs', 'china', 'frankrijk', 'spanje', 'italië', 'turkije', 'mexico', 'thailand', 'duitsland', 'belgië', 'verenigd koninkrijk', 'vk',
     'parijs', 'toulouse', 'barcelona', 'valencia', 'new york', 'san francisco', 'rome', 'milaan', 'istanbul', 'mexico-stad', 'guadalajara', 'bangkok', 'münchen', 'antwerpen', 'luik', 'londen', 'manchester'
   ];
-
+  
   const dutchCityTerms = [
     'eersel', 'eindhoven', 'tilburg', 'breda', 'den bosch', 's-hertogenbosch', 'roosendaal', 'bergen op zoom', 'etten-leur', 'oosterhout', 'waalwijk', 'moerdijk', 'zevenbergen', 'klundert', 'willemstad', 'fijnaart', 'standdaarbuiten', 'noordhoek', 'oudenbosch', 'rotterdam', 'den haag', 'leiden', 'dordrecht', 'delft', 'gouda', 'zoetermeer', 'amsterdam', 'haarlem', 'alkmaar', 'zaanstad', 'hoorn', 'amstelveen', 'utrecht', 'amersfoort', 'nieuwegein', 'zeist', 'vianen', 'nijmegen', 'arnhem', 'apeldoorn', 'ede', 'zutphen', 'enschede', 'zwolle', 'deventer', 'hengelo', 'almelo', 'maastricht', 'heerlen', 'venlo', 'sittard', 'roermond', 'leeuwarden', 'drachten', 'sneek', 'heerenveen', 'groningen', 'delfzijl', 'assen', 'emmen', 'meppel', 'middelburg', 'vlissingen', 'goes', 'terneuzen', 'almere', 'lelystad', 'brabant'
   ];
@@ -437,12 +437,19 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
   };
 
   const processedArticles = uniqueArticles.map(article => {
-    let relevanceScore = 0;
-    let category: 'belangrijk' | 'lokaal' | 'regionaal' = 'regionaal';
-    const contentText = `${article.title} ${article.content}`;
     const source = article.source.toLowerCase();
+    const contentText = `${article.title} ${article.content}`;
     const articleDisplayLocation = determineArticleLocation(contentText, location);
     const lowerContentText = contentText.toLowerCase();
+    
+    const isDutchLocation = location.country === 'Nederland';
+    let relevanceScore = 0;
+    let category: 'belangrijk' | 'lokaal' | 'regionaal' = 'regionaal';
+
+    // Give a base score for foreign articles so they are not filtered out
+    if (!isDutchLocation) {
+      relevanceScore = 5;
+    }
 
     const isNationalSource = DUTCH_NATIONAL_NEWS_SOURCES.some(s => s.name.toLowerCase() === source);
 
@@ -453,8 +460,8 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
     // Check for broader regional relevance (any Dutch city or regional source)
     const hasBroaderRegionalRelevance = dutchCityTerms.some(term => new RegExp(`\\b${term}\\b`, 'gi').test(lowerContentText)) || source.includes('brabant') || source.includes('bd.nl') || source.includes('bndestem');
 
-    // If it's a national source, it MUST have direct local relevance to the user. Otherwise, filter it out.
-    if (isNationalSource && !hasLocalRelevance) {
+    // If it's a Dutch national source without local relevance, filter it out. This rule does not apply to foreign news.
+    if (isDutchLocation && isNationalSource && !hasLocalRelevance) {
       relevanceScore = 0;
     } else {
       // For local sources, or national news with local relevance, calculate the score.

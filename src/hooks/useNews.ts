@@ -24,7 +24,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['news', location?.city, location?.region, filter],
+    queryKey: ['news', location?.city, location?.region, filter, JSON.stringify(location?.nearbyCities)],
     queryFn: async ({ pageParam = 1 }) => {
       if (!location) return { articles: [], hasMore: false };
       const pageData = await getNews(location, pageParam, filter);
@@ -54,7 +54,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     
     // Update the article in the infinite query cache
     queryClient.setQueryData(
-      ['news', location?.city, location?.region, filter], 
+      ['news', location?.city, location?.region, filter, JSON.stringify(location?.nearbyCities)], 
       (oldData: any) => {
         if (!oldData) return oldData;
         return {
