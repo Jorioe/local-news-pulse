@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Bell, MapPin, Globe, News } from 'lucide-react';
+import { Bell, MapPin, Globe, Newspaper } from 'lucide-react';
 import { Language, Location } from '../types/news';
 
 interface SettingsScreenProps {
@@ -109,7 +108,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* App Info */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
-            <News className="text-orange-500 mr-3" size={24} />
+            <Newspaper className="text-orange-500 mr-3" size={24} />
             <h2 className="text-lg font-semibold text-gray-900">Over deze app</h2>
           </div>
           

@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { Bookmark } from 'lucide-react';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
