@@ -95,6 +95,21 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
       </div>
       
       <div className="p-5 flex flex-col flex-1">
+        <div className="flex items-center justify-between mb-3">
+            <span className={`px-3 py-1.5 rounded-full text-xs font-medium flex-shrink-0 ${
+              article.category === 'belangrijk' 
+                ? 'bg-red-100 text-red-700'
+                : article.category === 'regionaal'
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-green-100 text-green-700'
+            }`}>
+              {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
+            </span>
+            {/* <span className="text-sm text-gray-500 truncate">
+              {article.author}
+            </span> */}
+        </div>
+        
         <h3 className="font-bold text-gray-900 text-xl leading-tight mb-3 line-clamp-2 flex-grow">
           {article.title}
         </h3>
@@ -103,7 +118,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
           {article.summary}
         </p>
         
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-sm text-gray-500 mt-auto pt-4 border-t border-gray-100">
           <div className="flex items-center">
             <MapPin size={14} className="mr-2" />
             <span className="truncate">{article.location}</span>
@@ -114,22 +129,6 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
             <span>•</span>
             <span className="font-medium truncate max-w-24">{article.source}</span>
           </div>
-        </div>
-        
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto">
-          <span className="text-sm text-gray-500 truncate">
-            Door {article.author}
-          </span>
-          
-          <span className={`px-3 py-1.5 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${
-            article.category === 'belangrijk' 
-              ? 'bg-red-100 text-red-700'
-              : article.category === 'regionaal'
-              ? 'bg-blue-100 text-blue-700'
-              : 'bg-green-100 text-green-700'
-          }`}>
-            {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-          </span>
         </div>
       </div>
     </div>

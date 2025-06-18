@@ -129,9 +129,9 @@ const ArticlePage: React.FC = () => {
           
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              <span className="font-medium">{article.source}</span>
-              <span className="mx-2">•</span>
-              <span>Door {article.author}</span>
+              <span className="font-medium">Bron: {article.source}</span>
+              {/* <span className="mx-2">•</span> */}
+              {/* <span>Door {article.author}</span> */}
             </div>
 
             <div className="flex items-center gap-4">
@@ -145,7 +145,7 @@ const ArticlePage: React.FC = () => {
                 <ExternalLink size={14} />
               </a>
             
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              {/* <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 article.category === 'belangrijk' 
                   ? 'bg-red-100 text-red-700'
                   : article.category === 'regionaal'
@@ -153,7 +153,7 @@ const ArticlePage: React.FC = () => {
                   : 'bg-green-100 text-green-700'
               }`}>
                 {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-              </span>
+              </span> */}
             </div>
           </div>
         </div>

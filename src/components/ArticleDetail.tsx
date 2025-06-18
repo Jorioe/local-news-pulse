@@ -137,8 +137,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onToggle
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
               <span className="font-medium">{article.source}</span>
-              <span className="mx-2">•</span>
-              <span>Door {article.author}</span>
+              {/* <span className="mx-2">•</span>
+              <span>Door {article.author}</span> */}
             </div>
             
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
