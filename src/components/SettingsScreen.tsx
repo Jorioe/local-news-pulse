@@ -26,10 +26,12 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
   ];
 
   return (
-    <div className="px-6 py-6 pb-20">
+    <div className="max-w-4xl mx-auto px-4 py-6 pb-20">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Instellingen</h1>
+      
       <div className="space-y-6">
         {/* Location Settings */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
               <MapPin className="text-foreground" size={20} />
@@ -46,7 +48,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </div>
 
         {/* Language Settings */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
               <Globe className="text-foreground" size={20} />
@@ -81,12 +83,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </div>
 
         {/* Notification Settings */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
-                <Bell className="text-foreground" size={20} />
-              </div>
+              <Bell className="text-orange-500 mr-3" size={24} />
               <div>
                 <h2 className="text-xl font-bold text-accent">{t('notifications')}</h2>
                 <p className="text-sm text-gray-600">{t('notifications_description')}</p>
@@ -95,12 +95,12 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
             
             <button
               onClick={onNotificationsToggle}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 ${
-                notificationsEnabled ? 'bg-foreground' : 'bg-gray-300'
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                notificationsEnabled ? 'bg-orange-500' : 'bg-gray-300'
               }`}
             >
               <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-200 ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
                   notificationsEnabled ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
@@ -109,7 +109,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </div>
 
         {/* App Info */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
               <Smartphone className="text-foreground" size={20} />
