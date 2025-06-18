@@ -200,7 +200,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
   };
 
   const handleSuggestionClick = (suggestion: LocationSuggestion) => {
-    // Immediately update UI for responsiveness
+    // Update de UI onmiddellijk voor een snelle respons
     setSearchQuery('');
     setSuggestions([]);
     setIsSearching(false);
@@ -208,7 +208,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
     const lat = parseFloat(suggestion.lat);
     const lon = parseFloat(suggestion.lon);
 
-    // Create location with data we have right now
+    // Maak een voorlopige locatie aan met de direct beschikbare gegevens
     const preliminaryLocation: Location = {
       city: suggestion.address.city || 
             suggestion.address.town || 
@@ -219,13 +219,13 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       country: suggestion.address.country,
       lat: lat,
       lon: lon,
-      nearbyCities: [] // No nearby cities yet
+      nearbyCities: [] // Nog geen nabijgelegen steden
     };
     
-    // Trigger first update
+    // Roep onLocationChange een eerste keer aan voor een snelle update
     onLocationChange(preliminaryLocation);
 
-    // Asynchronously fetch nearby cities and update again
+    // Haal asynchroon de nabijgelegen steden op en update de locatie nogmaals
     const fetchAndUpdateNearbyCities = async () => {
       try {
         const nearbyCitiesResponse = await fetch(
@@ -243,14 +243,17 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
           ? nearbyCitiesData.map((item: any) => item.name).slice(0, 4)
           : [];
 
+        // Stel de volledige locatie samen, inclusief nabijgelegen steden
         const fullLocation: Location = {
           ...preliminaryLocation,
           nearbyCities: nearbyCities
-    };
+        };
     
+        // Roep onLocationChange een tweede keer aan met de volledige data
         onLocationChange(fullLocation);
       } catch (e) {
-        console.error("Could not fetch nearby cities", e);
+        console.error("Could not fetch nearby cities, relevance might be affected.", e);
+        // We roepen onLocationChange hier niet opnieuw aan, de voorlopige locatie is al ingesteld.
       }
     };
 
@@ -273,6 +276,12 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       return `${name}, ${country}`;
     }
     return name;
+  };
+
+  const handleClearLocation = () => {
+    setSearchQuery('');
+    setSuggestions([]);
+    setIsSearching(false);
   };
 
   return (

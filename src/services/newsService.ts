@@ -10,6 +10,21 @@ const SOURCE_TYPES = {
   RSS: 'RSS Feed',
 };
 
+const REGION_MAP: { [key: string]: string } = {
+  'North Brabant': 'Noord-Brabant',
+  'South Holland': 'Zuid-Holland',
+  'North Holland': 'Noord-Holland',
+  'Zeeland': 'Zeeland',
+  'Utrecht': 'Utrecht',
+  'Flevoland': 'Flevoland',
+  'Friesland': 'Friesland',
+  'Groningen': 'Groningen',
+  'Drenthe': 'Drenthe',
+  'Overijssel': 'Overijssel',
+  'Gelderland': 'Gelderland',
+  'Limburg': 'Limburg'
+};
+
 // --- HELPERS ---
 
 const extractTextFromXml = (node: any): string => {
@@ -515,20 +530,18 @@ const getSourcesForLocation = (location: Location): Array<{ name: string; rssUrl
   const sources = new Set<{ name: string; rssUrl: string; baseUrl: string }>();
 
   if (location.country === 'Nederland') {
-    // For Dutch locations, add sources from the specific province (region)
-    if (location.region && LOCAL_NEWS_SOURCES[location.region]) {
-      LOCAL_NEWS_SOURCES[location.region].forEach(s => sources.add(s));
+    const mappedRegion = REGION_MAP[location.region] || location.region;
+    if (mappedRegion && LOCAL_NEWS_SOURCES[mappedRegion]) {
+      LOCAL_NEWS_SOURCES[mappedRegion].forEach(s => sources.add(s));
     }
-    // And add national Dutch sources
     DUTCH_NATIONAL_NEWS_SOURCES.forEach(s => sources.add(s));
   } else {
-    // For foreign locations, find the list of sources that starts with the country name
     const countryKey = Object.keys(LOCAL_NEWS_SOURCES).find(k => 
       k.toLowerCase().startsWith(location.country.toLowerCase())
     );
     if (countryKey) {
       LOCAL_NEWS_SOURCES[countryKey].forEach(s => sources.add(s));
-  }
+    }
   }
 
   // Fallback to national sources of the user's country if no specific sources were found
@@ -585,10 +598,6 @@ const fetchRSSFeeds = async (location: Location): Promise<NewsArticle[]> => {
 
 // --- MAIN EXPORT ---
 
-// Location-aware cache to store articles per city/region.
-const articlesCache: { [locationKey: string]: { articles: NewsArticle[], timestamp: number } } = {};
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
 export const getNews = async (
   location: Location, 
   page = 1, 
@@ -596,41 +605,25 @@ export const getNews = async (
   language: Language = 'nl',
   pageSize = 9
 ): Promise<{ articles: NewsArticle[], hasMore: boolean }> => {
-  const now = Date.now();
-  const locationKey = `${location.city}-${location.region}`;
-  const cachedEntry = articlesCache[locationKey];
-
+  console.log(`Fetching fresh articles for ${location.city}-${location.region} (Page ${page}).`);
+  
+  const rssArticles = await fetchRSSFeeds(location);
+  console.log(`Found ${rssArticles.length} total articles from all feeds for ${location.city}-${location.region}.`);
+  
   let currentArticles: NewsArticle[] = [];
-
-  // Use cache if it's recent and for the correct location, otherwise refetch
-  if (cachedEntry && now - cachedEntry.timestamp < CACHE_DURATION) {
-    console.log(`Using cached articles for ${locationKey} (Page ${page}).`);
-    currentArticles = cachedEntry.articles;
+  if (rssArticles.length > 0) {
+    currentArticles = processArticles(rssArticles, location);
   } else {
-    console.log(`Cache expired or empty for ${locationKey}. Fetching fresh articles.`);
-    const rssArticles = await fetchRSSFeeds(location);
-    console.log(`Found ${rssArticles.length} total articles from all feeds for ${locationKey}.`);
-    
-    if (rssArticles.length === 0) {
-      console.warn("No articles were found from any RSS feed.");
-      currentArticles = [];
-    } else {
-      currentArticles = processArticles(rssArticles, location);
-    }
-    
-    // Store the newly fetched and processed articles in the location-specific cache
-    articlesCache[locationKey] = {
-      articles: currentArticles,
-      timestamp: now,
-    };
-    console.log(`Processing complete. Total processed articles in cache for ${locationKey}: ${currentArticles.length}`);
+    console.warn("No articles were found from any RSS feed.");
   }
+  
+  console.log(`Processing complete. Total processed articles for ${location.city}-${location.region}: ${currentArticles.length}`);
 
   const filteredArticles = filter === 'alles'
     ? currentArticles
     : currentArticles.filter(a => a.category === filter);
 
-  // Paginate from the current articles (either from cache or freshly fetched)
+  // Paginate from the fetched and processed articles
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
@@ -641,10 +634,10 @@ export const getNews = async (
     const translatedArticles: NewsArticle[] = await Promise.all(
       paginatedArticles.map(article => translateArticle(article, language))
     );
-    console.log(`Returning page ${page} with ${translatedArticles.length} translated articles for ${locationKey}. Has more: ${hasMore}`);
+    console.log(`Returning page ${page} with ${translatedArticles.length} translated articles. Has more: ${hasMore}`);
     return { articles: translatedArticles, hasMore };
   }
   
-  console.log(`Returning page ${page} with ${paginatedArticles.length} articles for ${locationKey}. Has more: ${hasMore}`);
+  console.log(`Returning page ${page} with ${paginatedArticles.length} articles. Has more: ${hasMore}`);
   return { articles: paginatedArticles, hasMore };
 }; 
