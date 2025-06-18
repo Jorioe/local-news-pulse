@@ -4,8 +4,27 @@ import { MapPin, Search, Loader2 } from 'lucide-react';
 import { Location } from '../types/news';
 
 interface LocationPickerProps {
-  currentLocation: Location | null;
+  currentLocation: Location;
   onLocationChange: (location: Location) => void;
+}
+
+interface LocationSuggestion {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+  name: string;
+  type: string;
+  address: {
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    state?: string;
+    county?: string;
+    country?: string;
+    state_district?: string;
+  };
 }
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLocationChange }) => {
@@ -66,18 +85,25 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
 
   const detectLocation = async () => {
     setIsDetecting(true);
+    setError(null);
+    setSuggestions([]);
+
     try {
-      // Simulate GPS detection with setTimeout
-      setTimeout(() => {
-        const mockLocation: Location = {
-          city: 'Amsterdam',
-          region: 'Noord-Holland',
-          country: 'Nederland',
-          coordinates: { lat: 52.3676, lng: 4.9041 }
-        };
-        onLocationChange(mockLocation);
-        setIsDetecting(false);
-      }, 2000);
+      if (!navigator.geolocation) {
+        throw new Error('Locatieservices worden niet ondersteund door je browser');
+      }
+
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      const location = await reverseGeocode(latitude, longitude);
+      onLocationChange(location);
     } catch (error) {
       let errorMessage = t('could_not_get_location');
       
@@ -250,17 +276,30 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border-0 mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <MapPin className="text-orange-500 mr-2" size={20} />
-          <span className="font-semibold text-gray-800">
-            {currentLocation ? `${currentLocation.city}, ${currentLocation.region}` : 'Locatie niet ingesteld'}
-          </span>
+          <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
+            <MapPin className="text-orange-500" size={20} />
+          </div>
+          <div>
+            <div className="font-bold text-gray-900">
+              {currentLocation ? currentLocation.city : 'Locatie'}
+            </div>
+            <div className="text-sm text-gray-500">
+              {currentLocation ? `${currentLocation.region}, ${currentLocation.country}` : 'Niet ingesteld'}
+            </div>
+          </div>
         </div>
         <button
-          onClick={() => setIsSearching(!isSearching)}
-          className="text-orange-500 hover:text-orange-600 transition-colors"
+          onClick={() => {
+            setIsSearching(!isSearching);
+            if (!isSearching) {
+              setSuggestions([]);
+              setSearchQuery('');
+            }
+          }}
+          className="p-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-colors"
         >
           <Search size={20} />
         </button>
@@ -306,6 +345,12 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="text-red-500 text-sm mb-4">
+          {error}
         </div>
       )}
 
