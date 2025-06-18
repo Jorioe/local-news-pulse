@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Search, Loader2 } from 'lucide-react';
 import { Location } from '../types/news';
 
@@ -27,6 +28,7 @@ interface LocationSuggestion {
 }
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLocationChange }) => {
+  const { t } = useTranslation();
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDetecting, setIsDetecting] = useState(false);
@@ -35,45 +37,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
   const suggestionsRef = useRef<HTMLDivElement>(null);
-
-  // Nederlandse vertalingen voor landen
-  const countryTranslations: { [key: string]: string } = {
-    'Netherlands': 'Nederland',
-    'Germany': 'Duitsland',
-    'Belgium': 'België',
-    'France': 'Frankrijk',
-    'Spain': 'Spanje',
-    'Italy': 'Italië',
-    'United Kingdom': 'Verenigd Koninkrijk',
-    'United States': 'Verenigde Staten',
-    // Voeg hier meer vertalingen toe indien nodig
-  };
-
-  // Vertaal een landnaam naar Nederlands
-  const translateCountry = (country: string): string => {
-    return countryTranslations[country] || country;
-  };
-
-  // Nederlandse vertalingen voor regio's
-  const regionTranslations: { [key: string]: string } = {
-    'South Holland': 'Zuid-Holland',
-    'North Holland': 'Noord-Holland',
-    'North Brabant': 'Noord-Brabant',
-    'Gelderland': 'Gelderland',
-    'Utrecht': 'Utrecht',
-    'Overijssel': 'Overijssel',
-    'Limburg': 'Limburg',
-    'Friesland': 'Friesland',
-    'Groningen': 'Groningen',
-    'Drenthe': 'Drenthe',
-    'Zeeland': 'Zeeland',
-    'Flevoland': 'Flevoland',
-  };
-
-  // Vertaal een regionaam naar Nederlands
-  const translateRegion = (region: string): string => {
-    return regionTranslations[region] || region;
-  };
 
   useEffect(() => {
     // Add click outside listener to close suggestions
@@ -106,17 +69,17 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       );
       const nearbyCitiesData = await nearbyCitiesResponse.json();
       const nearbyCities = nearbyCitiesData.map((item: any) => item.name).slice(0, 4);
-
+      
       return {
         city: data.address.city || data.address.town || data.address.village || data.address.municipality || data.name,
-        region: translateRegion(data.address.state || data.address.county || data.address.state_district || ''),
-        country: translateCountry(data.address.country),
+        region: data.address.state || data.address.county || data.address.state_district || '',
+        country: data.address.country,
         lat: lat,
         lon: lng,
         nearbyCities: nearbyCities
       };
     } catch (error) {
-      throw new Error('Kon locatie niet bepalen');
+      throw new Error(t('could_not_get_location'));
     }
   };
 
@@ -142,18 +105,18 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       const location = await reverseGeocode(latitude, longitude);
       onLocationChange(location);
     } catch (error) {
-      let errorMessage = 'Kon locatie niet bepalen';
+      let errorMessage = t('could_not_get_location');
       
       if (error instanceof GeolocationPositionError) {
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Geef toestemming voor locatietoegang om deze functie te gebruiken';
+            errorMessage = t('location_permission_denied');
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Locatie-informatie is niet beschikbaar';
+            errorMessage = t('location_unavailable');
             break;
           case error.TIMEOUT:
-            errorMessage = 'Locatieverzoek duurde te lang';
+            errorMessage = t('location_request_timed_out');
             break;
         }
       }
@@ -184,7 +147,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       );
       
       if (!response.ok) {
-        throw new Error('Netwerkfout bij ophalen suggesties');
+        throw new Error(t('suggestions_network_error'));
       }
 
       const data: LocationSuggestion[] = await response.json();
@@ -213,7 +176,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
 
       setSuggestions(processedSuggestions);
     } catch (error) {
-      console.error('Fout bij ophalen suggesties:', error);
+      console.error(t('suggestions_error'), error);
       setSuggestions([]);
     } finally {
       setIsLoadingSuggestions(false);
@@ -252,8 +215,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
             suggestion.address.village || 
             suggestion.address.municipality ||
             suggestion.display_name.split(',')[0].trim(),
-      region: translateRegion(suggestion.address.state || suggestion.address.county || suggestion.address.state_district || ''),
-      country: translateCountry(suggestion.address.country || ''),
+      region: suggestion.address.state || suggestion.address.county || suggestion.address.state_district || '',
+      country: suggestion.address.country,
       lat: lat,
       lon: lon,
       nearbyCities: [] // No nearby cities yet
@@ -283,8 +246,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
         const fullLocation: Location = {
           ...preliminaryLocation,
           nearbyCities: nearbyCities
-        };
-        
+    };
+    
         onLocationChange(fullLocation);
       } catch (e) {
         console.error("Could not fetch nearby cities", e);
@@ -301,8 +264,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
                  suggestion.address.municipality ||
                  suggestion.display_name.split(',')[0].trim();
                  
-    const region = translateRegion(suggestion.address.state || suggestion.address.county || suggestion.address.state_district || '');
-    const country = translateCountry(suggestion.address.country || '');
+    const region = suggestion.address.state || suggestion.address.county || suggestion.address.state_district || '';
+    const country = suggestion.address.country;
 
     if (region && country) {
       return `${name}, ${region}, ${country}`;
@@ -345,14 +308,16 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       {isSearching && (
         <div className="space-y-3 mb-4">
           <div className="relative">
+            <div className="relative w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Zoek een plaats..."
               value={searchQuery}
               onChange={handleSearchInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 text-gray-900 placeholder-gray-500"
-              autoFocus
+                placeholder={t('location_placeholder')}
+                className="w-full bg-gray-50 border-gray-200 border rounded-xl pl-11 pr-4 py-3 text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
             />
+            </div>
 
             {(suggestions.length > 0 || isLoadingSuggestions) && (
               <div 
@@ -362,7 +327,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
                 {isLoadingSuggestions ? (
                   <div className="flex items-center justify-center p-4 text-gray-500">
                     <Loader2 className="animate-spin mr-2" size={16} />
-                    <span>Zoeken...</span>
+                    <span>{t('searching')}</span>
                   </div>
                 ) : (
                   suggestions.map((suggestion) => (
@@ -392,9 +357,16 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ currentLocation, onLoca
       <button
         onClick={detectLocation}
         disabled={isDetecting}
-        className="w-full py-3 px-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50 font-medium"
+        className="w-full text-center bg-foreground text-white rounded-xl px-4 py-3 text-base transition flex items-center justify-center gap-2 shadow-lg"
       >
-        {isDetecting ? 'Locatie detecteren...' : 'Gebruik huidige locatie'}
+        {isDetecting ? (
+          <>
+            <Loader2 className="animate-spin" size={20} />
+            {t('getting_location')}
+          </>
+        ) : (
+          t('use_current_location')
+        )}
       </button>
     </div>
   );

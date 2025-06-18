@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { getRelativeTime } from '../utils/dateUtils';
-import { Location, NewsArticle, NewsFilter } from '../types/news';
+import { Location, NewsArticle, NewsFilter, Language } from '../types/news';
+import { translateArticle } from './translationService';
 
 // --- CONSTANTS ---
 
@@ -466,22 +467,22 @@ const processArticles = (articles: NewsArticle[], location: Location): NewsArtic
     } else {
       // For local sources, or national news with local relevance, calculate the score.
       if (hasLocalRelevance) {
-        relevanceScore += 10;
-        category = 'lokaal';
-      }
+      relevanceScore += 10;
+      category = 'lokaal';
+    }
       
       if (hasBroaderRegionalRelevance) {
-        relevanceScore += 5;
-        if (category !== 'lokaal') category = 'regionaal';
-      }
+      relevanceScore += 5;
+      if (category !== 'lokaal') category = 'regionaal';
+    }
       
-      const importantTerms = ['belangrijk', 'urgent', 'breaking', 'update', 'waarschuwing', 'alert'];
+    const importantTerms = ['belangrijk', 'urgent', 'breaking', 'update', 'waarschuwing', 'alert'];
       if (importantTerms.some(term => lowerContentText.includes(term)) && (hasLocalRelevance || hasBroaderRegionalRelevance)) {
-        relevanceScore += 3;
-        if (category === 'lokaal') category = 'belangrijk';
-      }
+      relevanceScore += 3;
+      if (category === 'lokaal') category = 'belangrijk';
+    }
       
-      const ageInHours = (Date.now() - new Date(article.publishedAt).getTime()) / (1000 * 60 * 60);
+    const ageInHours = (Date.now() - new Date(article.publishedAt).getTime()) / (1000 * 60 * 60);
       if (ageInHours < 24) {
         relevanceScore += Math.max(0, (24 - ageInHours) / 24 * 5);
       } else {
@@ -527,7 +528,7 @@ const getSourcesForLocation = (location: Location): Array<{ name: string; rssUrl
     );
     if (countryKey) {
       LOCAL_NEWS_SOURCES[countryKey].forEach(s => sources.add(s));
-    }
+  }
   }
 
   // Fallback to national sources of the user's country if no specific sources were found
@@ -592,6 +593,7 @@ export const getNews = async (
   location: Location, 
   page = 1, 
   filter: NewsFilter = 'alles',
+  language: Language = 'nl',
   pageSize = 9
 ): Promise<{ articles: NewsArticle[], hasMore: boolean }> => {
   const now = Date.now();
@@ -633,8 +635,16 @@ export const getNews = async (
   const endIndex = startIndex + pageSize;
   const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
   const hasMore = endIndex < filteredArticles.length;
+
+  // Translate the paginated articles if the language is not Dutch
+  if (language !== 'nl') {
+    const translatedArticles: NewsArticle[] = await Promise.all(
+      paginatedArticles.map(article => translateArticle(article, language))
+    );
+    console.log(`Returning page ${page} with ${translatedArticles.length} translated articles for ${locationKey}. Has more: ${hasMore}`);
+    return { articles: translatedArticles, hasMore };
+  }
   
   console.log(`Returning page ${page} with ${paginatedArticles.length} articles for ${locationKey}. Has more: ${hasMore}`);
-
   return { articles: paginatedArticles, hasMore };
 }; 

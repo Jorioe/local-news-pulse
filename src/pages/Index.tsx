@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { MapPin, Users, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
@@ -8,6 +9,7 @@ import NewsCard from '../components/NewsCard';
 import SettingsScreen from '../components/SettingsScreen';
 import { useNews } from '../hooks/useNews';
 import { Location, NewsFilter, Language, NewsArticle } from '../types/news';
+import useLanguageStore from '../store/languageStore';
 
 const getInitialLocation = (): Location => {
   try {
@@ -38,11 +40,12 @@ const getInitialLocation = (): Location => {
 };
 
 const Index = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('news');
   const [currentLocation, setCurrentLocation] = useState<Location>(getInitialLocation);
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('alles');
-  const [currentLanguage, setCurrentLanguage] = useState<Language>('nl');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { language, setLanguage } = useLanguageStore();
 
   const { 
     articles, 
@@ -72,8 +75,7 @@ const Index = () => {
   };
 
   const handleLanguageChange = (language: Language) => {
-    setCurrentLanguage(language);
-    localStorage.setItem('newsapp-language', language);
+    setLanguage(language);
   };
 
   const handleNotificationsToggle = () => {
@@ -85,8 +87,8 @@ const Index = () => {
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
       <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">Lokaal Nieuws</h1>
-          <p className="text-orange-100 text-base sm:text-lg text-center">Blijf op de hoogte, waar je ook bent</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">{t('local_news')}</h1>
+          <p className="text-orange-100 text-base sm:text-lg text-center">{t('stay_informed')}</p>
         </div>
       </div>
       
@@ -107,14 +109,14 @@ const Index = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="text-gray-500">Nieuws laden...</div>
+            <div className="text-gray-500">{t('loading_news')}</div>
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm max-w-md mx-auto">
               <Users className="mx-auto mb-4 text-gray-300" size={48} />
-              <p className="text-lg font-medium mb-2">Geen artikelen gevonden</p>
-              <p className="text-sm">Probeer een andere filter of locatie.</p>
+              <p className="text-lg font-medium mb-2">{t('no_articles_found')}</p>
+              <p className="text-sm">{t('try_another_filter')}</p>
             </div>
           </div>
         ) : (
@@ -134,7 +136,7 @@ const Index = () => {
           {isFetchingNextPage ? (
             <div className="flex items-center justify-center gap-2 text-gray-500">
               <Loader2 className="animate-spin h-5 w-5" />
-              <span>Meer artikelen laden...</span>
+              <span>{t('loading_more_articles')}</span>
             </div>
           ) : hasNextPage ? (
             <button
@@ -142,10 +144,10 @@ const Index = () => {
               disabled={isFetchingNextPage}
               className="px-6 py-2 bg-white border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition"
             >
-              Meer laden
+              {t('load_more')}
             </button>
           ) : (
-            articles.length > 0 && <p className="text-gray-400">Dat was al het nieuws.</p>
+            articles.length > 0 && <p className="text-gray-400">{t('all_news_loaded')}</p>
           )}
         </div>
       </div>
@@ -156,16 +158,14 @@ const Index = () => {
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
       <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">Instellingen</h1>
-          <p className="text-orange-100 text-base sm:text-lg text-center">Personaliseer jouw ervaring</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">{t('settings')}</h1>
+          <p className="text-orange-100 text-base sm:text-lg text-center">{t('personalize_experience')}</p>
         </div>
       </div>
       
       <div className="max-w-4xl mx-auto">
         <SettingsScreen
           currentLocation={currentLocation}
-          currentLanguage={currentLanguage}
-          onLanguageChange={handleLanguageChange}
           notificationsEnabled={notificationsEnabled}
           onNotificationsToggle={handleNotificationsToggle}
         />
@@ -178,13 +178,13 @@ const Index = () => {
       {error ? (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center max-w-md mx-auto px-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Er is een fout opgetreden</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">{t('error_occurred')}</h2>
             <p className="text-gray-600 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-orange-600 hover:bg-orange-700"
             >
-              Probeer opnieuw
+              {t('try_again')}
             </button>
           </div>
         </div>

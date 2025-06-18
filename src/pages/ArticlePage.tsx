@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { ArrowLeft, MapPin, Image as ImageIcon, ExternalLink, Loader2 } from 'lucide-react';
 import { NewsArticle } from '../types/news';
+import useLanguageStore from '../store/languageStore';
+import useTranslation from '../hooks/useTranslation';
 
 const ArticlePage: React.FC = () => {
   const { state } = useLocation();
@@ -10,18 +12,36 @@ const ArticlePage: React.FC = () => {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
+  const language = useLanguageStore((s) => s.language);
+  const { translateText, isTranslating, error: translationError, setError: setTranslationError } = useTranslation();
+  const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
-    // If the article is not in the state (e.g., on page refresh),
-    // we currently don't have a way to fetch it individually.
-    // For now, we just accept that it will be null.
     if (state?.article) {
       setArticle(state.article);
     }
   }, [id, state]);
+
+  useEffect(() => {
+    const translateArticle = async () => {
+      if (article && language !== 'nl') {
+        // Sanitize content by removing script/style tags before translation
+        const sanitizedContent = article.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                                                  .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+
+        const translation = await translateText(sanitizedContent, language);
+        setTranslatedContent(translation);
+      } else {
+        setTranslatedContent(null);
+        setTranslationError(null);
+      }
+    };
+    translateArticle();
+  }, [article, language, translateText, setTranslationError]);
 
   const handleImageError = () => {
     console.error(`ArticleDetail: Image failed to load. URL: ${article?.thumbnail}`);
@@ -139,10 +159,35 @@ const ArticlePage: React.FC = () => {
         </div>
 
         {/* Article Content */}
+        {isTranslating ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
+            <span className="ml-4 text-gray-600">Tekst vertalen...</span>
+          </div>
+        ) : translationError ? (
+          <div>
+            <div 
+              className="prose prose-lg max-w-none mb-4" 
+              dangerouslySetInnerHTML={{ __html: article.content }} 
+            />
+            <div className="text-center p-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600 mb-2">Vertalen is mislukt.</p>
+              <a
+                href={`https://translate.google.com/?sl=auto&tl=${language}&text=${encodeURIComponent(article.content.replace(/<[^>]+>/g, ''))}&op=translate`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Vertaal via Google Translate
+              </a>
+            </div>
+          </div>
+        ) : (
         <div 
           className="prose prose-lg max-w-none" 
-          dangerouslySetInnerHTML={{ __html: article.content }} 
+            dangerouslySetInnerHTML={{ __html: translatedContent || article.content }} 
         />
+        )}
       </div>
     </div>
   );

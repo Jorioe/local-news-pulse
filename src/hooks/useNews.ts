@@ -2,10 +2,12 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { NewsArticle, Location, NewsFilter } from '../types/news';
 import { getNews } from '../services/newsService';
 import { useState, useEffect } from 'react';
+import useLanguageStore from '../store/languageStore';
 
 export const useNews = (location: Location | null, filter: NewsFilter) => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const queryClient = useQueryClient();
+  const { language } = useLanguageStore();
 
   // Load favorites from localStorage
   useEffect(() => {
@@ -24,10 +26,10 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['news', location?.city, location?.region, filter, JSON.stringify(location?.nearbyCities)],
+    queryKey: ['news', location?.city, location?.region, filter, language, JSON.stringify(location?.nearbyCities)],
     queryFn: async ({ pageParam = 1 }) => {
       if (!location) return { articles: [], hasMore: false };
-      const pageData = await getNews(location, pageParam, filter);
+      const pageData = await getNews(location, pageParam, filter, language);
       // Map favorites status to the newly fetched articles
       const articlesWithFavorites = pageData.articles.map(article => ({
         ...article,
@@ -54,7 +56,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     
     // Update the article in the infinite query cache
     queryClient.setQueryData(
-      ['news', location?.city, location?.region, filter, JSON.stringify(location?.nearbyCities)], 
+      ['news', location?.city, location?.region, filter, language, JSON.stringify(location?.nearbyCities)], 
       (oldData: any) => {
         if (!oldData) return oldData;
         return {

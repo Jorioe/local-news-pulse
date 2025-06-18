@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { NewsFilter } from '../types/news';
 
 interface NewsFilterProps {
@@ -8,11 +8,13 @@ interface NewsFilterProps {
 }
 
 const NewsFilterComponent: React.FC<NewsFilterProps> = ({ activeFilter, onFilterChange }) => {
+  const { t } = useTranslation();
+
   const filters: { value: NewsFilter; label: string }[] = [
-    { value: 'alles', label: 'Alles' },
-    { value: 'lokaal', label: 'Lokaal' },
-    { value: 'regionaal', label: 'Regionaal' },
-    { value: 'belangrijk', label: 'Belangrijk' },
+    { value: 'alles', label: t('filter_all') },
+    { value: 'lokaal', label: t('filter_local') },
+    { value: 'regionaal', label: t('filter_regional') },
+    { value: 'belangrijk', label: t('filter_important') },
   ];
 
   return (

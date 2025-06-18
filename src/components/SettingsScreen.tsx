@@ -1,26 +1,28 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, MapPin, Globe, Smartphone } from 'lucide-react';
 import { Language, Location } from '../types/news';
+import useLanguageStore from '../store/languageStore';
 
 interface SettingsScreenProps {
   currentLocation: Location;
-  currentLanguage: Language;
-  onLanguageChange: (language: Language) => void;
   notificationsEnabled: boolean;
   onNotificationsToggle: () => void;
 }
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({
   currentLocation,
-  currentLanguage,
-  onLanguageChange,
   notificationsEnabled,
   onNotificationsToggle
 }) => {
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguageStore();
+
   const languages = [
-    { code: 'nl' as Language, name: 'Nederlands', flag: '🇳🇱' },
-    { code: 'en' as Language, name: 'English', flag: '🇬🇧' },
-    { code: 'fr' as Language, name: 'Français', flag: '🇫🇷' },
+    { code: 'nl' as Language, name: 'Nederlands' },
+    { code: 'en' as Language, name: 'English' },
+    { code: 'fr' as Language, name: 'Français' },
+    { code: 'de' as Language, name: 'Deutsch' },
   ];
 
   return (
@@ -32,11 +34,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
               <MapPin className="text-foreground" size={20} />
             </div>
-            <h2 className="text-xl font-bold text-accent">Locatie</h2>
+            <h2 className="text-xl font-bold text-accent">{t('location')}</h2>
           </div>
           
           <div className="text-gray-600">
-            <p className="mb-2 font-medium">Huidige locatie:</p>
+            <p className="mb-2 font-medium">{t('current_location')}</p>
             <p className="text-accent text-lg">
               {`${currentLocation.city}, ${currentLocation.region}, ${currentLocation.country}`}
             </p>
@@ -49,26 +51,26 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
               <Globe className="text-foreground" size={20} />
             </div>
-            <h2 className="text-xl font-bold text-accent">Taal</h2>
+            <h2 className="text-xl font-bold text-accent">{t('language')}</h2>
           </div>
           
           <div className="space-y-3">
             {languages.map((lang) => (
               <button
                 key={lang.code}
-                onClick={() => onLanguageChange(lang.code)}
+                onClick={() => setLanguage(lang.code)}
                 className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 ${
-                  currentLanguage === lang.code
+                  language === lang.code
                     ? 'border-foreground bg-orange-50'
                     : 'border-gray-100 hover:bg-gray-50'
                 }`}
               >
                 <div className="flex items-center">
-                  <span className="text-2xl mr-4">{lang.flag}</span>
+                  <span className="text-sm font-bold w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full mr-3 text-gray-600">{lang.code.toUpperCase()}</span>
                   <span className="font-semibold text-accent">{lang.name}</span>
                 </div>
                 
-                {currentLanguage === lang.code && (
+                {language === lang.code && (
                   <div className="w-6 h-6 bg-foreground rounded-full flex items-center justify-center">
                     <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
                   </div>
@@ -86,8 +88,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 <Bell className="text-foreground" size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-accent">Meldingen</h2>
-                <p className="text-sm text-gray-600">Ontvang updates over lokaal nieuws</p>
+                <h2 className="text-xl font-bold text-accent">{t('notifications')}</h2>
+                <p className="text-sm text-gray-600">{t('notifications_description')}</p>
               </div>
             </div>
             
@@ -112,15 +114,14 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
               <Smartphone className="text-foreground" size={20} />
             </div>
-            <h2 className="text-xl font-bold text-accent">Over deze app</h2>
+            <h2 className="text-xl font-bold text-accent">{t('about_app')}</h2>
           </div>
           
           <div className="text-gray-600 space-y-3">
-            <p className="font-semibold text-accent">Versie: 1.0.0</p>
-            <p className="text-lg font-medium text-accent">Lokaal nieuws, overal en altijd</p>
+            <p className="font-semibold text-accent">{t('version')}</p>
+            <p className="text-lg font-medium text-accent">{t('app_tagline')}</p>
             <p className="leading-relaxed">
-              Deze app houdt u op de hoogte van het laatste nieuws in uw regio.
-              Alle artikelen worden automatisch vertaald naar uw gekozen taal.
+              {t('app_description')}
             </p>
           </div>
         </div>
