@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { MapPin, Users, Loader2 } from 'lucide-react';
+import { MapPin, Users, Loader2, Bookmark } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
@@ -154,6 +154,43 @@ const Index = () => {
     </div>
   );
 
+  const renderFavoritesTab = () => {
+    const favoriteArticles = articles.filter(article => article.isFavorite);
+
+    return (
+      <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
+        <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">{t('Favorieten')}</h1>
+            <p className="text-orange-100 text-base sm:text-lg text-center">{t('Hier vind je je opgeslagen artikelen')}</p>
+          </div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+          {favoriteArticles.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm max-w-md mx-auto">
+                <Bookmark className="mx-auto mb-4 text-gray-300" size={48} />
+                <p className="text-lg font-medium mb-2">{t('Geen favorieten gevonden')}</p>
+                <p className="text-sm">{t('Sla een artikel op om deze hier weer te geven')}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {favoriteArticles.map((article) => (
+                <NewsCard
+                  key={article.id}
+                  article={article}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderSettingsTab = () => (
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
       <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
@@ -191,6 +228,7 @@ const Index = () => {
       ) : (
         <>
           {activeTab === 'news' && renderNewsTab()}
+          {activeTab === 'favorites' && renderFavoritesTab()}
           {activeTab === 'settings' && renderSettingsTab()}
           <BottomTabBar 
             activeTab={activeTab}

@@ -77,7 +77,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
             loading="lazy"
           />
         )}
-        {/* <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -91,7 +91,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
               <Bookmark className="text-gray-600" size={16} />
             )}
           </button>
-        </div> */}
+        </div>
       </div>
       
       <div className="p-5 flex flex-col flex-1">
