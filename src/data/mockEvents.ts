@@ -5,21 +5,102 @@ export const mockEvents: Event[] = [
     id: '1',
     title: 'Groninger Museumnacht',
     description: 'Ontdek de magie van kunst en cultuur tijdens de Groninger Museumnacht. Alle musea in de stad zijn tot laat open met speciale activiteiten en performances.',
+    fullDescription: `Tijdens de Groninger Museumnacht openen alle musea in de stad hun deuren voor een unieke culturele ervaring. Van moderne kunst tot historische collecties, elke locatie biedt speciale activiteiten, performances en workshops.
+
+Wat kun je verwachten:
+- Interactieve kunstinstallaties
+- Live muziekoptredens
+- Speciale rondleidingen
+- Workshops voor alle leeftijden
+- Culinaire verrassingen
+
+De Museumnacht is dé kans om de rijke culturele scene van Groningen op een andere manier te beleven.`,
     date: '2024-04-15',
     time: '19:00 - 00:00',
     location: 'Diverse musea, Groningen',
     province: 'Groningen',
-    image: '/news-placeholder.svg'
+    image: 'https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=800&auto=format&fit=crop&q=60',
+    coordinates: {
+      lat: 53.2194,
+      lon: 6.5665
+    },
+    category: 'Cultuur',
+    tags: ['museum', 'kunst', 'cultuur', 'nacht', 'performance'],
+    ticketInfo: {
+      price: '€15,00',
+      url: 'https://museumnacht.groningen.nl',
+      availability: 'available'
+    },
+    organizer: {
+      name: 'Stichting Groninger Museumnacht',
+      website: 'https://museumnacht.groningen.nl',
+      email: 'info@museumnacht.groningen.nl',
+      phone: '050-3666555'
+    },
+    lineup: [
+      {
+        name: 'Groninger Museum',
+        time: '19:00 - 00:00',
+        description: 'Speciale tentoonstelling moderne kunst'
+      },
+      {
+        name: 'Noordelijk Scheepvaartmuseum',
+        time: '19:00 - 00:00',
+        description: 'Historische rondleidingen'
+      },
+      {
+        name: 'GRID Grafisch Museum',
+        time: '19:00 - 00:00',
+        description: 'Drukwerk workshops'
+      }
+    ]
   },
   {
     id: '2',
     title: 'Friesland Culinair Festival',
     description: 'Proef de authentieke Friese keuken tijdens dit tweedaagse food festival. Met lokale producenten, kookworkshops en live muziek.',
+    fullDescription: `Het Friesland Culinair Festival brengt het beste van de Friese keuken samen op één plek. Tijdens dit tweedaagse evenement kun je genieten van:
+
+- Proeverijen van lokale specialiteiten
+- Showcooking door bekende chefs
+- Workshops Friese kooktechnieken
+- Wijn- en bierproeverijen
+- Live muziek van Friese artiesten
+
+Een culinaire ontdekkingsreis door Friesland!`,
     date: '2024-05-20',
     time: '12:00 - 22:00',
     location: 'Wilhelminaplein, Leeuwarden',
     province: 'Friesland',
-    image: '/news-placeholder.svg'
+    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=60',
+    coordinates: {
+      lat: 53.2019,
+      lon: 5.7999
+    },
+    category: 'Culinair',
+    tags: ['food', 'festival', 'culinair', 'lokaal', 'muziek'],
+    ticketInfo: {
+      price: '€12,50',
+      url: 'https://frieslandculinair.nl',
+      availability: 'limited'
+    },
+    organizer: {
+      name: 'Stichting Friesland Culinair',
+      website: 'https://frieslandculinair.nl',
+      email: 'info@frieslandculinair.nl'
+    },
+    lineup: [
+      {
+        name: 'Kookdemonstratie - Chef Jan de Vries',
+        time: '14:00 - 15:00',
+        description: 'Moderne twist op traditionele Friese gerechten'
+      },
+      {
+        name: 'Workshop Suikerbrood Bakken',
+        time: '16:00 - 17:30',
+        description: 'Leer zelf authentiek Fries suikerbrood maken'
+      }
+    ]
   },
   {
     id: '3',
@@ -95,11 +176,54 @@ export const mockEvents: Event[] = [
     id: '10',
     title: 'Brabants Streekbierenfestival',
     description: 'Ontdek de rijke biercultuur van Noord-Brabant. Met proeverijen, brouwerijbezoeken en food pairing workshops.',
+    fullDescription: `Het Brabants Streekbierenfestival is hét evenement voor bierliefhebbers. Ontdek de rijke biercultuur van Noord-Brabant met:
+
+- Proeverijen van lokale brouwerijen
+- Food pairing workshops
+- Meet & greet met brouwmeesters
+- Live muziek en entertainment
+- Brabantse hapjes
+
+Een gezellig festival waar je kennis kunt maken met de beste bieren uit de regio!`,
     date: '2024-05-25',
     time: '14:00 - 23:00',
     location: 'Chasséveld, Breda',
     province: 'Noord-Brabant',
-    image: '/news-placeholder.svg'
+    image: 'https://images.unsplash.com/photo-1436076863939-06870fe779c2?w=800&auto=format&fit=crop&q=60',
+    coordinates: {
+      lat: 51.5719,
+      lon: 4.7683
+    },
+    category: 'Festival',
+    tags: ['bier', 'festival', 'culinair', 'lokaal', 'muziek'],
+    ticketInfo: {
+      price: '€17,50',
+      url: 'https://brabantsbierenfestival.nl',
+      availability: 'available'
+    },
+    organizer: {
+      name: 'Stichting Brabants Bier',
+      website: 'https://brabantsbierenfestival.nl',
+      email: 'info@brabantsbierenfestival.nl',
+      phone: '076-5553333'
+    },
+    lineup: [
+      {
+        name: 'Proeverij Lokale Brouwerijen',
+        time: '14:30 - 16:00',
+        description: 'Ontdek verschillende Brabantse bieren'
+      },
+      {
+        name: 'Workshop Bier & Spijs',
+        time: '16:30 - 17:30',
+        description: 'Leer over het combineren van bier met gerechten'
+      },
+      {
+        name: 'Live Muziek - De Brabanders',
+        time: '20:00 - 23:00',
+        description: 'Gezellige muziek op het hoofdpodium'
+      }
+    ]
   },
   {
     id: '11',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Clock, MapPin, Share2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, Share2, Bookmark, BookmarkMinus } from 'lucide-react';
 import { Event } from '../types/news';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
@@ -8,12 +8,15 @@ import { Button } from './ui/button';
 interface EventCardProps {
   event: Event;
   onShare?: () => void;
+  onToggleFavorite: (eventId: string) => void;
+  onClick: (event: Event) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onShare }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, onShare, onToggleFavorite, onClick }) => {
   const { t } = useTranslation();
 
-  const handleShare = () => {
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onShare) {
       onShare();
     } else {
@@ -29,13 +32,31 @@ const EventCard: React.FC<EventCardProps> = ({ event, onShare }) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <Card 
+      className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      onClick={() => onClick(event)}
+    >
       <div className="relative">
         <img
           src={event.image}
           alt={event.title}
           className="w-full h-48 object-cover"
         />
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(event.id);
+            }}
+            className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-all duration-200"
+          >
+            {event.isFavorite ? (
+              <BookmarkMinus className="text-orange-500" size={16} />
+            ) : (
+              <Bookmark className="text-gray-600" size={16} />
+            )}
+          </button>
+        </div>
       </div>
       <div className="p-4 space-y-4">
         <h3 className="text-xl font-bold text-accent line-clamp-2">

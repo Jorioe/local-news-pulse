@@ -38,4 +38,28 @@ export interface Event {
   location: string;
   province: string;
   image: string;
+  isFavorite?: boolean;
+  coordinates?: {
+    lat: number;
+    lon: number;
+  };
+  lineup?: {
+    name: string;
+    time?: string;
+    description?: string;
+  }[];
+  ticketInfo?: {
+    price: string;
+    url: string;
+    availability: 'available' | 'limited' | 'sold_out';
+  };
+  organizer?: {
+    name: string;
+    website?: string;
+    phone?: string;
+    email?: string;
+  };
+  fullDescription?: string;
+  category?: string;
+  tags?: string[];
 }

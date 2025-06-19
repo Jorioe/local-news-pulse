@@ -100,7 +100,7 @@ const LOCAL_NEWS_SOURCES: { [key: string]: Array<{ name: string; rssUrl: string;
     { name: 'Brabants Dagblad', rssUrl: 'https://www.bd.nl/moerdijk/rss.xml', baseUrl: 'https://www.bd.nl' },
     { name: 'Moerdijk Nieuws', rssUrl: 'https://moerdijk.nieuws.nl/feed/', baseUrl: 'https://moerdijk.nieuws.nl' },
     { name: 'Internet Bode', rssUrl: 'https://www.internetbode.nl/moerdijk/rss', baseUrl: 'https://internetbode.nl' },
-    { name: 'Brabant Vandaag – Algemeen', rssUrl: 'https://brabantvandaag.nl/rss-feeds', baseUrl: 'https://brabantvandaag.nl' }, // Oozo feeds voor heel Brabant :contentReference[oaicite:1]{index=1}
+    { name: 'Brabant Vandaag – Algemeen', rssUrl: 'https://brabantvandaag.nl/feed/', baseUrl: 'https://brabantvandaag.nl' }, // Oozo feeds voor heel Brabant :contentReference[oaicite:1]{index=1}
     { name: 'Brabant Vandaag – Breda', rssUrl: 'https://brabantvandaag.nl/breda/feed/', baseUrl: 'https://brabantvandaag.nl' },
     { name: 'Brabant Vandaag – Zevenbergen', rssUrl: 'https://brabantvandaag.nl/zevenbergen/feed/', baseUrl: 'https://brabantvandaag.nl' },
     { name: 'Brabant Vandaag – Tilburg', rssUrl: 'https://brabantvandaag.nl/tilburg/feed/', baseUrl: 'https://brabantvandaag.nl' },
