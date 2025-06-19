@@ -7,6 +7,7 @@ import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
 import NewsCard from '../components/NewsCard';
+import EventsList from '../components/EventsList';
 import SettingsScreen from '../components/SettingsScreen';
 import WeeklyOverview from './WeeklyOverview';
 import { useNews } from '../hooks/useNews';
@@ -43,12 +44,17 @@ const getInitialLocation = (): Location => {
 
 const Index = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'news';
   const [activeTab, setActiveTab] = useState(initialTab);
   const [currentLocation, setCurrentLocation] = useState<Location>(getInitialLocation);
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('alles');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [eventsEnabled, setEventsEnabled] = useState(() => {
+    const saved = localStorage.getItem('newsapp-events-enabled');
+    return saved ? JSON.parse(saved) : false;
+  });
   const { language, setLanguage } = useLanguageStore();
 
   const { 
@@ -98,6 +104,15 @@ const Index = () => {
     localStorage.setItem('newsapp-notifications', JSON.stringify(!notificationsEnabled));
   };
 
+  const handleEventsToggle = () => {
+    const newValue = !eventsEnabled;
+    setEventsEnabled(newValue);
+    localStorage.setItem('newsapp-events-enabled', JSON.stringify(newValue));
+    if (activeFilter === 'evenementen' && !newValue) {
+      setActiveFilter('lokaal');
+    }
+  };
+
   const handleTabChange = (tab: string) => {
     if (tab === 'overview') {
       navigate('/weekly-overview');
@@ -126,11 +141,14 @@ const Index = () => {
         <NewsFilterComponent 
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
+          showEvents={eventsEnabled}
         />
       </div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-        {loading ? (
+        {activeFilter === 'evenementen' ? (
+          <EventsList province={currentLocation.region} />
+        ) : loading ? (
           <div className="flex justify-center py-12">
             <div className="text-gray-500">{t('loading_news')}</div>
           </div>
@@ -155,24 +173,26 @@ const Index = () => {
         )}
 
         {/* Load More Trigger */}
-        <div ref={ref} className="mt-6 text-center">
-          {isFetchingNextPage ? (
-            <div className="flex items-center justify-center gap-2 text-gray-500">
-              <Loader2 className="animate-spin h-5 w-5" />
-              <span>{t('loading_more_articles')}</span>
-            </div>
-          ) : hasNextPage ? (
-            <button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className="px-6 py-2 bg-white border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition"
-            >
-              {t('load_more')}
-            </button>
-          ) : (
-            articles.length > 0 && <p className="text-gray-400">{t('all_news_loaded')}</p>
-          )}
-        </div>
+        {activeFilter !== 'evenementen' && (
+          <div ref={ref} className="mt-6 text-center">
+            {isFetchingNextPage ? (
+              <div className="flex items-center justify-center gap-2 text-gray-500">
+                <Loader2 className="animate-spin h-5 w-5" />
+                <span>{t('loading_more_articles')}</span>
+              </div>
+            ) : hasNextPage ? (
+              <button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="px-6 py-2 bg-white border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition"
+              >
+                {t('load_more')}
+              </button>
+            ) : (
+              articles.length > 0 && <p className="text-gray-400">{t('all_news_loaded')}</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -227,7 +247,9 @@ const Index = () => {
         <SettingsScreen
           currentLocation={currentLocation}
           notificationsEnabled={notificationsEnabled}
+          eventsEnabled={eventsEnabled}
           onNotificationsToggle={handleNotificationsToggle}
+          onEventsToggle={handleEventsToggle}
         />
       </div>
     </div>

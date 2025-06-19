@@ -1,19 +1,23 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, MapPin, Globe, Smartphone } from 'lucide-react';
+import { Bell, MapPin, Globe, Smartphone, Calendar } from 'lucide-react';
 import { Language, Location } from '../types/news';
 import useLanguageStore from '../store/languageStore';
 
 interface SettingsScreenProps {
   currentLocation: Location;
   notificationsEnabled: boolean;
+  eventsEnabled: boolean;
   onNotificationsToggle: () => void;
+  onEventsToggle: () => void;
 }
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({
   currentLocation,
   notificationsEnabled,
-  onNotificationsToggle
+  eventsEnabled,
+  onNotificationsToggle,
+  onEventsToggle
 }) => {
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguageStore();
@@ -77,6 +81,34 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 )}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Events Settings */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
+                <Calendar className="text-foreground" size={20} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-accent">{t('events')}</h2>
+                <p className="text-sm text-gray-600">{t('events_description')}</p>
+              </div>
+            </div>
+            
+            <button
+              onClick={onEventsToggle}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 ${
+                eventsEnabled ? 'bg-foreground' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-200 ${
+                  eventsEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
         </div>
 

@@ -26,5 +26,16 @@ export interface Location {
   lon: number;
 }
 
-export type NewsFilter = 'alles' | 'lokaal' | 'regionaal' | 'belangrijk';
-export type Language = 'nl' | 'en' | 'fr';
+export type NewsFilter = 'alles' | 'lokaal' | 'regionaal' | 'belangrijk' | 'evenementen';
+export type Language = 'nl' | 'en' | 'fr' | 'de';
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  province: string;
+  image: string;
+}
