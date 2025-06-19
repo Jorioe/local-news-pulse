@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar } from 'lucide-react';
-import { NewsFilter } from '../types/news';
+import { Calendar, Filter } from 'lucide-react';
+import { NewsFilter, ContentCategory } from '../types/news';
+import { Button } from './ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 interface NewsFilterProps {
   activeFilter: NewsFilter;
+  activeContentCategory?: ContentCategory;
   onFilterChange: (filter: NewsFilter) => void;
+  onContentCategoryChange?: (category: ContentCategory | undefined) => void;
   showEvents?: boolean;
 }
 
-const NewsFilterComponent: React.FC<NewsFilterProps> = ({ activeFilter, onFilterChange, showEvents = false }) => {
+const NewsFilterComponent: React.FC<NewsFilterProps> = ({ 
+  activeFilter, 
+  activeContentCategory,
+  onFilterChange, 
+  showEvents = false 
+}) => {
   const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<ContentCategory | undefined>(undefined);
 
   const filters: { value: NewsFilter; label: string }[] = [
     { value: 'alles', label: t('filter_all') },
@@ -19,9 +30,22 @@ const NewsFilterComponent: React.FC<NewsFilterProps> = ({ activeFilter, onFilter
     { value: 'belangrijk', label: t('filter_important') },
   ];
 
+  const contentCategories: { value: ContentCategory; label: string }[] = [
+    { value: 'politiek', label: t('category_politics') },
+    { value: 'cultuur', label: t('category_culture') },
+    { value: 'economie', label: t('category_economy') },
+    { value: 'sport', label: t('category_sports') },
+    { value: 'onderwijs', label: t('category_education') }
+  ];
+
+  const handleCategorySelect = (category: ContentCategory | undefined) => {
+    setSelectedCategory(category);
+    setIsOpen(false);
+  };
+
   return (
     <div className="space-y-2">
-      <div className="flex gap-2 sm:gap-3 px-4 sm:px-6 py-4 overflow-x-auto">
+      <div className="flex gap-2 sm:gap-3 px-4 sm:px-6 py-4 overflow-x-auto items-center">
         {filters.map((filter) => (
           <button
             key={filter.value}
@@ -35,6 +59,49 @@ const NewsFilterComponent: React.FC<NewsFilterProps> = ({ activeFilter, onFilter
             {filter.label}
           </button>
         ))}
+
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-10 w-10 rounded-xl flex-shrink-0 ${
+                selectedCategory ? 'bg-foreground text-white hover:bg-foreground/90' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2">
+            <div className="flex flex-col gap-1">
+              <Button
+                variant="ghost"
+                className={`justify-start font-medium ${
+                  !selectedCategory 
+                    ? 'bg-gray-100 text-gray-900 hover:bg-gray-200' 
+                    : 'hover:bg-gray-100'
+                }`}
+                onClick={() => handleCategorySelect(undefined)}
+              >
+                {t('filter_all_categories')}
+              </Button>
+              {contentCategories.map((category) => (
+                <Button
+                  key={category.value}
+                  variant="ghost"
+                  className={`justify-start font-medium ${
+                    selectedCategory === category.value 
+                      ? 'bg-gray-100 text-gray-900 hover:bg-gray-200' 
+                      : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleCategorySelect(category.value)}
+                >
+                  {category.label}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Events sub-filter */}

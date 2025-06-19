@@ -64,5 +64,14 @@
   "summary_not_found": "Weekoverzicht niet gevonden",
   "summary_load_error": "Het weekoverzicht kon niet worden geladen",
   "back_to_overview": "Terug naar het overzicht",
-  "read_full_article": "Lees het volledige artikel"
+  "read_full_article": "Lees het volledige artikel",
+  "filter_category": "Categorie",
+  "filter_all_categories": "Alle categorieën",
+  "category_politics": "Politiek",
+  "category_culture": "Cultuur",
+  "category_safety": "Veiligheid",
+  "category_economy": "Economie",
+  "category_sports": "Sport",
+  "category_education": "Onderwijs",
+  "category_health": "Gezondheid"
 } 

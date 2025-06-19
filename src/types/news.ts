@@ -1,3 +1,5 @@
+export type ContentCategory = 'politiek' | 'cultuur' | 'veiligheid' | 'economie' | 'sport' | 'onderwijs' | 'gezondheid';
+
 export interface NewsArticle {
   id: string;
   title: string;
@@ -9,6 +11,7 @@ export interface NewsArticle {
   source: string;
   author: string;
   category: 'lokaal' | 'regionaal' | 'belangrijk';
+  contentCategory?: ContentCategory;
   isFavorite?: boolean;
   relevanceScore: number;
   url: string;

@@ -95,7 +95,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
       </div>
       
       <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <div className="flex gap-2 flex-wrap">
             <span className={`px-3 py-1.5 rounded-full text-xs font-medium flex-shrink-0 ${
               article.category === 'belangrijk' 
                 ? 'bg-red-100 text-red-700'
@@ -105,9 +106,15 @@ const NewsCard: React.FC<NewsCardProps> = ({ article, onToggleFavorite }) => {
             }`}>
               {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
             </span>
-            {/* <span className="text-sm text-gray-500 truncate">
-              {article.author}
-            </span> */}
+            {article.contentCategory && (
+              <span className="px-3 py-1.5 rounded-full text-xs font-medium flex-shrink-0 bg-purple-100 text-purple-700">
+                {article.contentCategory.charAt(0).toUpperCase() + article.contentCategory.slice(1)}
+              </span>
+            )}
+          </div>
+          {/* <span className="text-sm text-gray-500 truncate">
+            {article.author}
+          </span> */}
         </div>
         
         <h3 className="font-bold text-gray-900 text-xl leading-tight mb-3 line-clamp-2 flex-grow">

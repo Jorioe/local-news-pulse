@@ -49,5 +49,14 @@
     "summary_not_found": "Weekly summary not found",
     "summary_load_error": "The weekly summary could not be loaded",
     "back_to_overview": "Back to overview",
-    "read_full_article": "Read full article"
+    "read_full_article": "Read full article",
+    "filter_category": "Category",
+    "filter_all_categories": "All categories",
+    "category_politics": "Politics",
+    "category_culture": "Culture",
+    "category_safety": "Safety",
+    "category_economy": "Economy",
+    "category_sports": "Sports",
+    "category_education": "Education",
+    "category_health": "Health"
 } 
