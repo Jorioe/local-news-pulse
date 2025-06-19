@@ -125,8 +125,15 @@ const Index = () => {
     <div className="pb-20 min-h-screen" style={{ background: '#faf9f7' }}>
       <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">{t('local_news')}</h1>
-          <p className="text-orange-100 text-base sm:text-lg text-center">{t('stay_informed')}</p>
+          <div className="flex flex-col items-center justify-center">
+            <img 
+              src="/img/Loka-vierkant.png" 
+              alt="Loka Logo" 
+              className="h-12 mb-4 -mt-3 filter"
+            />
+            {/* <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-center">{t('local_news')}</h1> */}
+            <p className="text-orange-100 text-base sm:text-lg text-center">{t('stay_informed')}</p>
+          </div>
         </div>
       </div>
       

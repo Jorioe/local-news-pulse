@@ -67,25 +67,53 @@ const ArticlePage: React.FC = () => {
   }
 
   return (
-    <div className="bg-background min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 bg-white/80 backdrop-blur-sm z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
-              <ArrowLeft className="text-gray-700" />
+    <div className="bg-background min-h-screen" style={{ background: '#faf9f7' }}>
+      {/* Orange Header */}
+      <div className="text-white px-4 sm:px-6 pt-12 pb-8" style={{ background: '#ff5f2e' }}>
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between">
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-white hover:text-orange-100 transition-colors"
+            >
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              <span className="text-sm font-medium">Terug naar overzicht</span>
             </Link>
-            <div className="text-center">
-              <span className="text-sm font-medium text-gray-500 truncate max-w-xs">{article.source}</span>
+          </div>
+          <div className="mt-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-white leading-tight">
+              {article.title}
+            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
+              <div className="flex flex-wrap items-center gap-3 text-white">
+                <div className="flex items-center">
+                  <MapPin size={16} className="mr-1 flex-shrink-0" />
+                  <span>{article.location}</span>
+                </div>
+                <span className="hidden sm:inline">•</span>
+                <span>{article.relativeTime || new Date(article.publishedAt).toLocaleDateString()}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="font-medium">{article.source}</span>
+              </div>
+              <div className="flex sm:flex-none">
+                <a 
+                  href={article.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-700/90 rounded-full hover:bg-gray-800 transition-colors"
+                >
+                  Lees origineel artikel
+                  <ExternalLink size={14} className="flex-shrink-0" />
+                </a>
+              </div>
             </div>
-            <div className="w-8"></div> {/* Spacer */}
           </div>
         </div>
-      </header>
+      </div>
       
-      <div className="max-w-4xl mx-auto px-4 pb-8 text-gray-900">
+      <div className="max-w-4xl mx-auto px-4 -mt-4">
         {/* Hero Image */}
-        <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden my-6 relative">
+        <div className="aspect-video bg-white rounded-xl overflow-hidden shadow-sm relative mb-8">
           {imageLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="animate-pulse w-24 h-24 rounded-full bg-gray-200" />
@@ -111,83 +139,38 @@ const ArticlePage: React.FC = () => {
           )}
         </div>
 
-        {/* Article Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-accent leading-tight mb-4">
-            {article.title}
-          </h1>
-          
-          <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-            <div className="flex items-center">
-              <MapPin size={16} className="mr-1" />
-              <span>{article.location}</span>
-            </div>
-            
-            <span>•</span>
-            <span>{article.relativeTime || new Date(article.publishedAt).toLocaleDateString()}</span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              <span className="font-medium">Bron: {article.source}</span>
-              {/* <span className="mx-2">•</span> */}
-              {/* <span>Door {article.author}</span> */}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <a 
-                href={article.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                Lees origineel
-                <ExternalLink size={14} />
-              </a>
-            
-              {/* <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                article.category === 'belangrijk' 
-                  ? 'bg-red-100 text-red-700'
-                  : article.category === 'regionaal'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-green-100 text-green-700'
-              }`}>
-                {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-              </span> */}
-            </div>
-          </div>
-        </div>
-
         {/* Article Content */}
-        {isTranslating ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
-            <span className="ml-4 text-gray-600">Tekst vertalen...</span>
-          </div>
-        ) : translationError ? (
-          <div>
-            <div 
-              className="prose prose-lg max-w-none mb-4" 
-              dangerouslySetInnerHTML={{ __html: article.content }} 
-            />
-            <div className="text-center p-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">Vertalen is mislukt.</p>
-              <a
-                href={`https://translate.google.com/?sl=auto&tl=${language}&text=${encodeURIComponent(article.content.replace(/<[^>]+>/g, ''))}&op=translate`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                Vertaal via Google Translate
-              </a>
+        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 mb-8">
+          {isTranslating ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
+              <span className="ml-4 text-gray-600">Tekst vertalen...</span>
             </div>
-          </div>
-        ) : (
-        <div 
-          className="prose prose-lg max-w-none" 
-            dangerouslySetInnerHTML={{ __html: translatedContent || article.content }} 
-        />
-        )}
+          ) : translationError ? (
+            <div>
+              <div 
+                className="!text-[#111827] prose prose-lg max-w-none [&_p]:!text-[#111827] [&_span]:!text-[#111827] [&_div]:!text-[#111827]" 
+                dangerouslySetInnerHTML={{ __html: article.content }} 
+              />
+              <div className="text-center p-4 border-t border-gray-200">
+                <p className="text-sm text-gray-600 mb-2">Vertalen is mislukt.</p>
+                <a
+                  href={`https://translate.google.com/?sl=auto&tl=${language}&text=${encodeURIComponent(article.content.replace(/<[^>]+>/g, ''))}&op=translate`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
+                >
+                  Vertaal via Google Translate
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div 
+              className="!text-[#111827] prose prose-lg max-w-none [&_p]:!text-[#111827] [&_span]:!text-[#111827] [&_div]:!text-[#111827]" 
+              dangerouslySetInnerHTML={{ __html: translatedContent || article.content }} 
+            />
+          )}
+        </div>
       </div>
     </div>
   );
