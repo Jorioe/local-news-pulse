@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { MapPin, Users, Loader2, Bookmark } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import BottomTabBar from '../components/BottomTabBar';
 import LocationPicker from '../components/LocationPicker';
 import NewsFilterComponent from '../components/NewsFilter';
 import NewsCard from '../components/NewsCard';
 import SettingsScreen from '../components/SettingsScreen';
+import WeeklyOverview from './WeeklyOverview';
 import { useNews } from '../hooks/useNews';
 import { Location, NewsFilter, Language, NewsArticle } from '../types/news';
 import useLanguageStore from '../store/languageStore';
@@ -41,7 +43,9 @@ const getInitialLocation = (): Location => {
 
 const Index = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('news');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'news';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [currentLocation, setCurrentLocation] = useState<Location>(getInitialLocation);
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('alles');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -69,6 +73,17 @@ const Index = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  useEffect(() => {
+    // Update URL when tab changes
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (activeTab === 'news') {
+      newSearchParams.delete('tab');
+    } else {
+      newSearchParams.set('tab', activeTab);
+    }
+    window.history.replaceState(null, '', `${window.location.pathname}?${newSearchParams.toString()}`);
+  }, [activeTab]);
+
   const handleLocationChange = (location: Location) => {
     setCurrentLocation(location);
     localStorage.setItem('newsapp-location', JSON.stringify(location));
@@ -81,6 +96,14 @@ const Index = () => {
   const handleNotificationsToggle = () => {
     setNotificationsEnabled(!notificationsEnabled);
     localStorage.setItem('newsapp-notifications', JSON.stringify(!notificationsEnabled));
+  };
+
+  const handleTabChange = (tab: string) => {
+    if (tab === 'overview') {
+      navigate('/weekly-overview');
+    } else {
+      setActiveTab(tab);
+    }
   };
 
   const renderNewsTab = () => (
@@ -210,6 +233,10 @@ const Index = () => {
     </div>
   );
 
+  const renderOverviewTab = () => (
+    <WeeklyOverview isEmbedded={true} />
+  );
+
   return (
     <div className="min-h-screen" style={{ background: '#faf9f7' }}>
       {error ? (
@@ -230,10 +257,8 @@ const Index = () => {
           {activeTab === 'news' && renderNewsTab()}
           {activeTab === 'favorites' && renderFavoritesTab()}
           {activeTab === 'settings' && renderSettingsTab()}
-          <BottomTabBar 
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+          {activeTab === 'overview' && renderOverviewTab()}
+          <BottomTabBar activeTab={activeTab} onTabChange={setActiveTab} />
         </>
       )}
     </div>

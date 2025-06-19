@@ -15,6 +15,7 @@
   "favorites": "Favorieten",
   "tab_news": "Nieuws",
   "tab_favorites": "Favorieten",
+  "tab_overview": "Overzicht",
   "tab_settings": "Instellingen",
   "filter_all": "Alles",
   "filter_local": "Lokaal",
@@ -38,5 +39,15 @@
   "location_request_timed_out": "Locatieverzoek duurde te lang",
   "suggestions_network_error": "Netwerkfout bij ophalen suggesties",
   "suggestions_error": "Fout bij ophalen suggesties",
-  "searching": "Zoeken..."
+  "searching": "Zoeken...",
+  "weekly_overview": "Weekoverzicht",
+  "weekly_overview_description": "Bekijk de belangrijkste artikelen per week",
+  "weekly_summary_title": "Nieuwsoverzicht week {{weekNumber}}",
+  "weekly_summary_description": "Top 5 belangrijkste artikelen van deze week",
+  "no_summaries_available": "Geen weekoverzichten beschikbaar",
+  "summaries_generation_info": "De weekoverzichten worden elke maandag gegenereerd",
+  "summary_not_found": "Weekoverzicht niet gevonden",
+  "summary_load_error": "Het weekoverzicht kon niet worden geladen",
+  "back_to_overview": "Terug naar het overzicht",
+  "read_full_article": "Lees het volledige artikel"
 } 

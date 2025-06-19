@@ -8,6 +8,7 @@ import Index from './pages/Index';
 import NotFound from "./pages/NotFound";
 import ArticlePage from "./pages/ArticlePage";
 import RssReader from "./components/RssReader";
+import WeeklySummaryDetail from './pages/WeeklySummaryDetail';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/article/:id" element={<ArticlePage />} />
             <Route path="/rss" element={<RssReader />} />
+            <Route path="/weekly-summary/:id" element={<WeeklySummaryDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

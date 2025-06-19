@@ -15,6 +15,7 @@
     "favorites": "Favorites",
     "tab_news": "News",
     "tab_favorites": "Favorites",
+    "tab_overview": "Overview",
     "tab_settings": "Settings",
     "filter_all": "All",
     "filter_local": "Local",
@@ -38,5 +39,15 @@
     "location_request_timed_out": "Location request timed out",
     "suggestions_network_error": "Network error while fetching suggestions",
     "suggestions_error": "Error fetching suggestions",
-    "searching": "Searching..."
+    "searching": "Searching...",
+    "weekly_overview": "Weekly Overview",
+    "weekly_overview_description": "View the most important articles by week",
+    "weekly_summary_title": "News summary week {{weekNumber}}",
+    "weekly_summary_description": "Top 5 most important articles of this week",
+    "no_summaries_available": "No weekly summaries available",
+    "summaries_generation_info": "Weekly summaries are generated every Monday",
+    "summary_not_found": "Weekly summary not found",
+    "summary_load_error": "The weekly summary could not be loaded",
+    "back_to_overview": "Back to overview",
+    "read_full_article": "Read full article"
 } 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Newspaper, Settings, Bookmark } from 'lucide-react';
+import { Newspaper, Settings, Bookmark, Calendar } from 'lucide-react';
 
 interface BottomTabBarProps {
   activeTab: string;
@@ -13,6 +13,7 @@ const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onTabChange }) =
   const tabs = [
     { id: 'news', label: t('tab_news'), icon: Newspaper },
     { id: 'favorites', label: t('tab_favorites'), icon: Bookmark },
+    { id: 'overview', label: t('tab_overview'), icon: Calendar },
     { id: 'settings', label: t('tab_settings'), icon: Settings },
   ];
 
