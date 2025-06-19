@@ -87,19 +87,19 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Events Settings */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
+            <div className="flex items-center flex-1 min-w-0">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3 flex-shrink-0">
                 <Calendar className="text-foreground" size={20} />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-accent">{t('events')}</h2>
-                <p className="text-sm text-gray-600">{t('events_description')}</p>
+              <div className="min-w-0">
+                <h2 className="text-xl font-bold text-accent truncate">{t('events')}</h2>
+                <p className="text-sm text-gray-600 truncate">{t('events_description')}</p>
               </div>
             </div>
             
             <button
               onClick={onEventsToggle}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 ${
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 flex-shrink-0 ml-4 ${
                 eventsEnabled ? 'bg-foreground' : 'bg-gray-300'
               }`}
             >
@@ -115,19 +115,19 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Notification Settings */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
+            <div className="flex items-center flex-1 min-w-0">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-3 flex-shrink-0">
                 <Bell className="text-foreground" size={20} />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-accent">{t('notifications')}</h2>
-                <p className="text-sm text-gray-600">{t('notifications_description')}</p>
+              <div className="min-w-0">
+                <h2 className="text-xl font-bold text-accent truncate">{t('notifications')}</h2>
+                <p className="text-sm text-gray-600 truncate">{t('notifications_description')}</p>
               </div>
             </div>
             
             <button
               onClick={onNotificationsToggle}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 ${
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 flex-shrink-0 ml-4 ${
                 notificationsEnabled ? 'bg-foreground' : 'bg-gray-300'
               }`}
             >

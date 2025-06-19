@@ -45,27 +45,29 @@ const NewsFilterComponent: React.FC<NewsFilterProps> = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-2 sm:gap-3 px-4 sm:px-6 py-4 overflow-x-auto items-center">
-        {filters.map((filter) => (
-          <button
-            key={filter.value}
-            onClick={() => onFilterChange(filter.value)}
-            className={`whitespace-nowrap px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
-              activeFilter === filter.value
-                ? 'bg-foreground text-white shadow-lg'
-                : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
-            }`}
-          >
-            {filter.label}
-          </button>
-        ))}
+      <div className="flex gap-2 sm:gap-3 px-2 sm:px-6 py-4 overflow-x-auto items-center">
+        <div className="flex-1 flex gap-2 sm:gap-3 overflow-x-auto">
+          {filters.map((filter) => (
+            <button
+              key={filter.value}
+              onClick={() => onFilterChange(filter.value)}
+              className={`whitespace-nowrap px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
+                activeFilter === filter.value
+                  ? 'bg-foreground text-white shadow-lg'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
 
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className={`h-10 w-10 rounded-xl flex-shrink-0 ${
+              className={`h-10 w-10 rounded-xl flex-shrink-0 ml-2 ${
                 selectedCategory ? 'bg-foreground text-white hover:bg-foreground/90' : 'hover:bg-gray-100'
               }`}
             >
@@ -106,10 +108,10 @@ const NewsFilterComponent: React.FC<NewsFilterProps> = ({
 
       {/* Events sub-filter */}
       {showEvents && (activeFilter === 'lokaal' || activeFilter === 'evenementen') && (
-        <div className="flex gap-2 sm:gap-3 px-4 sm:px-6 overflow-x-auto border-t border-gray-100 py-3">
+        <div className="flex gap-2 sm:gap-3 px-2 sm:px-6 overflow-x-auto border-t border-gray-100 py-3">
           <button
             onClick={() => onFilterChange(activeFilter === 'evenementen' ? 'lokaal' : 'evenementen')}
-            className={`whitespace-nowrap px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0 flex items-center gap-2 ${
+            className={`whitespace-nowrap px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0 flex items-center gap-2 ${
               activeFilter === 'evenementen'
                 ? 'bg-foreground text-white shadow-lg'
                 : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
