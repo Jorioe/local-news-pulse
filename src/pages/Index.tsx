@@ -65,7 +65,11 @@ const Index = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useNews(currentLocation, activeFilter);
+  } = useNews(
+    currentLocation, 
+    // Only fetch news if we're not on the events filter
+    activeFilter === 'evenementen' ? null : activeFilter
+  );
 
   const { ref, inView } = useInView({
     threshold: 0,

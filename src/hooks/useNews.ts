@@ -4,7 +4,7 @@ import { getNews } from '../services/newsService';
 import { useState, useEffect } from 'react';
 import useLanguageStore from '../store/languageStore';
 
-export const useNews = (location: Location | null, filter: NewsFilter) => {
+export const useNews = (location: Location | null, filter: NewsFilter | null) => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { language } = useLanguageStore();
@@ -29,7 +29,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
   } = useInfiniteQuery({
     queryKey: ['news', location?.city, location?.region, filter, language, JSON.stringify(location?.nearbyCities)],
     queryFn: async ({ pageParam = 1 }) => {
-      if (!location) return { articles: [], hasMore: false };
+      if (!location || !filter) return { articles: [], hasMore: false };
       
       try {
         console.log(`Fetching news for ${location.city}, page ${pageParam}`);
@@ -56,7 +56,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasMore ? allPages.length + 1 : undefined;
     },
-    enabled: !!location,
+    enabled: !!location && !!filter,
     initialPageParam: 1,
     gcTime: 10 * 60 * 1000, // Keep data in cache for 10 minutes
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
