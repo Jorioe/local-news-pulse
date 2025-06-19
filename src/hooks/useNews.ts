@@ -17,7 +17,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     }
   }, []);
 
-  // Use React Query's useInfiniteQuery for pagination
+  // Use React Query's useInfiniteQuery for pagination with retry logic
   const {
     data,
     error,
@@ -25,17 +25,33 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    refetch
   } = useInfiniteQuery({
     queryKey: ['news', location?.city, location?.region, filter, language, JSON.stringify(location?.nearbyCities)],
     queryFn: async ({ pageParam = 1 }) => {
       if (!location) return { articles: [], hasMore: false };
-      const pageData = await getNews(location, pageParam, filter, language);
-      // Map favorites status to the newly fetched articles
-      const articlesWithFavorites = pageData.articles.map(article => ({
-        ...article,
-        isFavorite: favorites.includes(article.id)
-      }));
-      return { ...pageData, articles: articlesWithFavorites };
+      
+      try {
+        console.log(`Fetching news for ${location.city}, page ${pageParam}`);
+        const pageData = await getNews(location, pageParam, filter, language);
+        
+        if (!pageData.articles || pageData.articles.length === 0) {
+          console.log('No articles returned, might need to retry');
+          throw new Error('No articles returned');
+        }
+        
+        // Map favorites status to the newly fetched articles
+        const articlesWithFavorites = pageData.articles.map(article => ({
+          ...article,
+          isFavorite: favorites.includes(article.id)
+        }));
+        
+        console.log(`Successfully fetched ${articlesWithFavorites.length} articles`);
+        return { ...pageData, articles: articlesWithFavorites };
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        throw error;
+      }
     },
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasMore ? allPages.length + 1 : undefined;
@@ -44,6 +60,8 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     initialPageParam: 1,
     gcTime: 10 * 60 * 1000, // Keep data in cache for 10 minutes
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    retry: 3, // Retry failed requests 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   const toggleFavorite = (articleId: string) => {
@@ -76,6 +94,12 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
 
   const allArticles = data?.pages.flatMap(page => page.articles) || [];
 
+  // Add a manual refetch function that can be called if needed
+  const retryFetch = async () => {
+    console.log('Manually retrying news fetch...');
+    await refetch();
+  };
+
   return {
     articles: allArticles,
     loading: isLoading,
@@ -83,6 +107,7 @@ export const useNews = (location: Location | null, filter: NewsFilter) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    toggleFavorite
+    toggleFavorite,
+    retryFetch // Expose the retry function
   };
 };

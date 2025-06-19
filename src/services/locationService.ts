@@ -159,27 +159,39 @@ export const searchLocations = async (query: string): Promise<Location[]> => {
 // Function to get location from IP address as fallback
 export const getLocationFromIP = async (): Promise<Location> => {
   try {
-    // Using ip-api.com which provides free IP geolocation
-    const response = await axios.get('http://ip-api.com/json/');
+    // Using ip-api.com which provides free IP geolocation (now with HTTPS)
+    const response = await axios.get('https://ipapi.co/json/');
     const data = response.data;
     
     const city = data.city || '';
-    const rawRegion = data.regionName || '';
+    const rawRegion = data.region || '';
     const region = translateRegion(rawRegion, city);
-    const country = data.country === 'Netherlands' ? 'Nederland' : data.country || '';
+    const country = data.country_name === 'Netherlands' ? 'Nederland' : data.country_name || '';
     
-    console.log('IP-locatie gevonden:', { city, region, country, lat: data.lat, lon: data.lon });
+    console.log('IP-locatie gevonden:', { city, region, country, lat: data.latitude, lon: data.longitude });
+    
+    if (!city || !region || !country) {
+      throw new Error('Incomplete location data from IP');
+    }
     
     return {
       city,
       region,
       country,
       nearbyCities: [],
-      lat: data.lat,
-      lon: data.lon
+      lat: data.latitude,
+      lon: data.longitude
     };
   } catch (error) {
     console.error('Error getting location from IP:', error);
-    throw new Error('Failed to get location from IP');
+    // Return a default location for Netherlands as fallback
+    return {
+      city: 'Amsterdam',
+      region: 'Noord-Holland',
+      country: 'Nederland',
+      nearbyCities: [],
+      lat: 52.3676,
+      lon: 4.9041
+    };
   }
 }; 

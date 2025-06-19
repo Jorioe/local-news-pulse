@@ -5,7 +5,7 @@ import { translateArticle } from './translationService';
 
 // --- CONSTANTS ---
 
-const CORS_PROXY = 'https://corsproxy.io/?';
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 const SOURCE_TYPES = {
   RSS: 'RSS Feed',
 };
@@ -568,20 +568,38 @@ const fetchRSSFeeds = async (location: Location): Promise<NewsArticle[]> => {
   const sourcesToFetch = getSourcesForLocation(location);
   console.log(`Fetching from ${sourcesToFetch.length} sources for ${location.city}`, sourcesToFetch.map(s=>s.name));
 
-
   let allArticles: NewsArticle[] = [];
+  let successfulFeeds = 0;
 
   const feedPromises = sourcesToFetch.map(async (source) => {
     try {
       const proxyUrl = `${CORS_PROXY}${encodeURIComponent(source.rssUrl)}`;
-      const response = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) }); // 10-second timeout
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(proxyUrl, { 
+        signal: AbortSignal.timeout(15000), // Increased timeout to 15 seconds
+        headers: {
+          'Accept': 'application/rss+xml, application/xml, text/xml, */*'
+        }
+      });
+      
+      if (!response.ok) {
+        console.warn(`Failed to fetch ${source.name} (${source.rssUrl}), status: ${response.status}`);
+        return [];
+      }
+
       const xmlText = await response.text();
+      if (!xmlText || xmlText.trim().length === 0) {
+        console.warn(`Empty response from ${source.name} (${source.rssUrl})`);
+        return [];
+      }
+
       const result = parser.parse(xmlText);
       const items = result.rss?.channel?.item || result.feed?.entry || [];
       
+      if (items && items.length > 0) {
+        successfulFeeds++;
+      }
+
       const articlePromises = items.map((item: any) => processArticleFields(item, source, location));
-      
       const processedArticles = (await Promise.all(articlePromises))
         .filter((article): article is NewsArticle => article !== null);
         
@@ -593,7 +611,11 @@ const fetchRSSFeeds = async (location: Location): Promise<NewsArticle[]> => {
   });
 
   const results = await Promise.all(feedPromises);
-  return results.flat();
+  const flatResults = results.flat();
+  
+  console.log(`Successfully fetched from ${successfulFeeds}/${sourcesToFetch.length} feeds, got ${flatResults.length} articles`);
+  
+  return flatResults;
 };
 
 // --- MAIN EXPORT ---
