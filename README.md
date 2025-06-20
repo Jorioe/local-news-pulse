@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.11-38B2AC.svg)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
----
+
 
 ## Overview
 
@@ -14,7 +14,7 @@ Loka is een moderne webapplicatie die lokaal nieuws binnen handbereik brengt. Bl
 
 ![Local News Pulse Logo](public/img/Loka-vierkant.png)
 
----
+
 
 ## ✨ Features
 
@@ -25,7 +25,7 @@ Loka is een moderne webapplicatie die lokaal nieuws binnen handbereik brengt. Bl
 - 📅 Weekly news summaries
 - 🎨 Modern UI with shadcn/ui components
 
----
+
 
 ## 🚀 Getting Started
 
@@ -58,7 +58,7 @@ yarn dev
 
 The application will be available at `http://localhost:3000`
 
----
+
 
 ## 🛠️ Built With
 
@@ -72,7 +72,7 @@ The application will be available at `http://localhost:3000`
 - [Zustand](https://zustand-demo.pmnd.rs/) - State management
 - [React Query](https://tanstack.com/query/latest) - Data fetching and caching
 
----
+
 
 ## 📦 Project Structure
 
@@ -90,7 +90,7 @@ local-news-pulse/
 ├── public/            # Static assets
 └── server/           # Backend server code
 ```
----
+
 
 ## 🔧 Available Scripts
 
@@ -99,9 +99,6 @@ local-news-pulse/
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
-## 🌐 Environment Variables
-
----
 
 ## 📝 License
 
