@@ -1,73 +1,116 @@
-# Welcome to your Lovable project
+# Loka 📰
 
-## Project info
+[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.4.1-646CFF.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.11-38B2AC.svg)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**URL**: https://lovable.dev/projects/200d856b-6a4c-4250-9994-10d53acabb47
+---
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+Loka is een moderne webapplicatie die lokaal nieuws binnen handbereik brengt. Blijf op de hoogte van wat er in uw omgeving gebeurt. Loka - Stay in the know, wherever you go.
 
-**Use Lovable**
+![Local News Pulse Logo](public/img/Loka-vierkant.png)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/200d856b-6a4c-4250-9994-10d53acabb47) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## ✨ Features
 
-**Use your preferred IDE**
+- 📱 Responsive design for all devices
+- 🌍 Multi-language support (EN, NL, FR, DE)
+- 📰 RSS feed integration
+- 📍 Location-based news filtering
+- 📅 Weekly news summaries
+- 🎨 Modern UI with shadcn/ui components
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Getting Started
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Node.js (LTS version recommended)
+- npm or yarn package manager
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository
+```bash
+git clone https://github.com/jorioe/local-news-pulse.git
+cd local-news-pulse
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Start the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-**Use GitHub Codespaces**
+The application will be available at `http://localhost:3000`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 🛠️ Built With
 
-This project is built with:
+- [React](https://reactjs.org/) - Frontend library
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Vite](https://vitejs.dev/) - Build tool and development server
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [shadcn/ui](https://ui.shadcn.com/) - UI component library
+- [i18next](https://www.i18next.com/) - Internationalization framework
+- [React Router](https://reactrouter.com/) - Navigation
+- [Zustand](https://zustand-demo.pmnd.rs/) - State management
+- [React Query](https://tanstack.com/query/latest) - Data fetching and caching
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## 📦 Project Structure
 
-Simply open [Lovable](https://lovable.dev/projects/200d856b-6a4c-4250-9994-10d53acabb47) and click on Share -> Publish.
+```
+local-news-pulse/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Page components
+│   ├── services/      # API and business logic
+│   ├── hooks/         # Custom React hooks
+│   ├── context/       # React context providers
+│   ├── store/         # State management
+│   ├── types/         # TypeScript type definitions
+│   └── utils/         # Utility functions
+├── public/            # Static assets
+└── server/           # Backend server code
+```
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 🔧 Available Scripts
 
-Yes, you can!
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🌐 Environment Variables
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+---
+
+🔗 GitHub repository: [jorioe/local-news-pulse](https://github.com/jorioe/local-news-pulse)
+
+
+
